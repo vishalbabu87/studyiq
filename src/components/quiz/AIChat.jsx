@@ -5,6 +5,7 @@ export default function AIChat({ onClose, onApplyConfig }) {
   const [message, setMessage] = useState("");
   const [loading, setLoading] = useState(false);
   const [status, setStatus] = useState("");
+  const [draftConfig, setDraftConfig] = useState(null);
   const [history, setHistory] = useState([
     {
       role: "assistant",
@@ -16,17 +17,22 @@ export default function AIChat({ onClose, onApplyConfig }) {
     if (!message.trim() || loading) return;
     const current = message.trim();
     const settings = readSettings();
+    const providerLabel = settings.primaryAI === "openai" ? "OpenAI" : "Gemini";
 
     setLoading(true);
     setMessage("");
+    setStatus(`Trying ${providerLabel}...`);
     setHistory((prev) => [...prev, { role: "user", content: current }]);
 
     try {
+      const controller = new AbortController();
+      const timeout = setTimeout(() => controller.abort(), 11000);
       const response = await fetch("/api/ai/quiz", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ message: current, settings }),
-      });
+        signal: controller.signal,
+      }).finally(() => clearTimeout(timeout));
       const raw = await response.text();
       let data;
       try {
@@ -38,21 +44,27 @@ export default function AIChat({ onClose, onApplyConfig }) {
         throw new Error(data?.reply || data?.error || "AI API request failed.");
       }
 
-      setStatus(`Provider: ${data.provider || "local"} | fallback: ${data.fallbackUsed ? "yes" : "no"}`);
+      if (data.fallbackUsed) {
+        setStatus(`Switched to ${data.provider || "local"} (fallback active)`);
+      } else {
+        setStatus(`Provider: ${data.provider || "local"} | fallback: no`);
+      }
       setHistory((prev) => [...prev, { role: "assistant", content: data.reply }]);
 
       if (data.quizConfig) {
-        onApplyConfig(data.quizConfig);
-        onClose();
+        setDraftConfig(data.quizConfig);
+        setStatus((prev) => `${prev} | config ready`);
       }
     } catch (error) {
-      setStatus(`AI unavailable -> local fallback only (${error.message || "request failed"})`);
+      const message = error?.name === "AbortError" ? "AI timeout -> local fallback only" : `AI unavailable -> local fallback only (${error.message || "request failed"})`;
+      setStatus(message);
       setHistory((prev) => [
         ...prev,
         {
           role: "assistant",
-          content:
-            "Unable to reach AI provider. Local setup still works. Check Gemini key in Settings or Vercel env.",
+          content: error?.name === "AbortError"
+            ? "AI took too long. Local setup still works instantly."
+            : "Unable to reach AI provider. Local setup still works. Check Gemini key in Settings or Vercel env.",
         },
       ]);
     } finally {
@@ -106,9 +118,23 @@ export default function AIChat({ onClose, onApplyConfig }) {
               onClick={send}
               className="rounded-xl pink-blue-gradient px-5 py-3 text-white disabled:opacity-50"
             >
-              {loading ? "..." : "Send"}
+              {loading ? "Thinking..." : "Send"}
             </button>
           </div>
+          {draftConfig && (
+            <div className="mt-3 flex justify-end">
+              <button
+                type="button"
+                onClick={() => {
+                  onApplyConfig(draftConfig);
+                  onClose();
+                }}
+                className="rounded-xl bg-emerald-600 px-4 py-2 text-sm font-semibold text-white hover:bg-emerald-500"
+              >
+                Apply to Quiz Setup
+              </button>
+            </div>
+          )}
         </footer>
       </section>
     </div>

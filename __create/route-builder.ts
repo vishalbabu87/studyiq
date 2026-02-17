@@ -15,9 +15,7 @@ function getHonoPathFromModulePath(modulePath: string): { name: string; pattern:
   const relativePath = modulePath
     .replace('../src/app/api/', '')
     .replace(/\/route\.js$/, '');
-  const parts = relativePath.split('/').filter(Boolean);
-  const routeParts = parts.slice(0, -1); // Remove 'route.js'
-  if (relativePath === '' || routeParts.length === 0) {
+  if (relativePath === '') {
     return [{ name: 'root', pattern: '' }];
   }
   const transformedParts = relativePath.split('/').filter(Boolean).map((segment) => {
@@ -43,53 +41,27 @@ async function registerRoutes() {
   api.routes = [];
 
   for (const modulePath of routeFiles) {
-    try {
-      const loader = routeModules[modulePath];
-      const route = await loader();
+    const loader = routeModules[modulePath];
+    const parts = getHonoPathFromModulePath(modulePath);
+    const honoPath = `/${parts.map(({ pattern }) => pattern).join('/')}`;
 
-      const methods = ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'];
-      for (const method of methods) {
-        try {
-          if (route[method]) {
-            const parts = getHonoPathFromModulePath(modulePath);
-            const honoPath = `/${parts.map(({ pattern }) => pattern).join('/')}`;
-            const handler: Handler = async (c) => {
-              const params = c.req.param();
-              if (import.meta.env.DEV) {
-                const updatedRoute = await loader();
-                return await updatedRoute[method](c.req.raw, { params });
-              }
-              return await route[method](c.req.raw, { params });
-            };
-            const methodLowercase = method.toLowerCase();
-            switch (methodLowercase) {
-              case 'get':
-                api.get(honoPath, handler);
-                break;
-              case 'post':
-                api.post(honoPath, handler);
-                break;
-              case 'put':
-                api.put(honoPath, handler);
-                break;
-              case 'delete':
-                api.delete(honoPath, handler);
-                break;
-              case 'patch':
-                api.patch(honoPath, handler);
-                break;
-              default:
-                console.warn(`Unsupported method: ${method}`);
-                break;
-            }
-          }
-        } catch (error) {
-          console.error(`Error registering route ${modulePath} for method ${method}:`, error);
+    const handler: Handler = async (c) => {
+      try {
+        const route = await loader();
+        const method = c.req.method?.toUpperCase();
+        const action = route?.[method];
+        if (!action) {
+          return c.json({ error: `Method ${method} not allowed` }, 405);
         }
+        const params = c.req.param();
+        return await action(c.req.raw, { params });
+      } catch (error) {
+        console.error(`Error handling route ${modulePath}:`, error);
+        return c.json({ error: 'API route failed to execute' }, 500);
       }
-    } catch (error) {
-      console.error(`Error importing route file ${modulePath}:`, error);
-    }
+    };
+
+    api.all(honoPath, handler);
   }
 }
 

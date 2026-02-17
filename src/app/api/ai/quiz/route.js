@@ -53,48 +53,66 @@ function parseModelJSON(content) {
 
 async function askGemini(message, apiKey) {
   if (!apiKey) return null;
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), 7000);
   const prompt = `Return valid JSON only: {"reply":"...","quizConfig":{"questionCount":10,"difficulty":"easy|medium|hard","mode":"sequential|random|mistakes","rangeStart":1,"rangeEnd":10,"timerMinutes":5}} based on: ${message}`;
-  const response = await fetch(
-    `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`,
-    {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        contents: [{ role: "user", parts: [{ text: prompt }] }],
-      }),
-    },
-  );
-  if (!response.ok) return null;
-  const data = await response.json();
-  const text = data?.candidates?.[0]?.content?.parts?.[0]?.text || "";
-  return parseModelJSON(text);
+  try {
+    const response = await fetch(
+      `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`,
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          contents: [{ role: "user", parts: [{ text: prompt }] }],
+        }),
+        signal: controller.signal,
+      },
+    );
+    if (!response.ok) return null;
+    const data = await response.json();
+    const text = data?.candidates?.[0]?.content?.parts?.[0]?.text || "";
+    return parseModelJSON(text);
+  } catch {
+    return null;
+  } finally {
+    clearTimeout(timeout);
+  }
 }
 
 async function askOpenAI(message, apiKey) {
   if (!apiKey) return null;
-  const response = await fetch("https://api.openai.com/v1/chat/completions", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${apiKey}`,
-    },
-    body: JSON.stringify({
-      model: "gpt-4o-mini",
-      temperature: 0.2,
-      messages: [
-        {
-          role: "system",
-          content:
-            'Return valid JSON only with keys: reply, quizConfig. quizConfig keys: questionCount,difficulty,mode,rangeStart,rangeEnd,timerMinutes.',
-        },
-        { role: "user", content: message },
-      ],
-    }),
-  });
-  if (!response.ok) return null;
-  const data = await response.json();
-  const text = data?.choices?.[0]?.message?.content || "";
-  return parseModelJSON(text);
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), 7000);
+  try {
+    const response = await fetch("https://api.openai.com/v1/chat/completions", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${apiKey}`,
+      },
+      body: JSON.stringify({
+        model: "gpt-4o-mini",
+        temperature: 0.2,
+        messages: [
+          {
+            role: "system",
+            content:
+              'Return valid JSON only with keys: reply, quizConfig. quizConfig keys: questionCount,difficulty,mode,rangeStart,rangeEnd,timerMinutes.',
+          },
+          { role: "user", content: message },
+        ],
+      }),
+      signal: controller.signal,
+    });
+    if (!response.ok) return null;
+    const data = await response.json();
+    const text = data?.choices?.[0]?.message?.content || "";
+    return parseModelJSON(text);
+  } catch {
+    return null;
+  } finally {
+    clearTimeout(timeout);
+  }
 }
 
 export async function POST(request) {

@@ -1,4 +1,4 @@
-function parseTextToEntries(text) {
+function parseTextToEntries(text, pageNumber = null) {
   const entries = [];
   const lines = String(text || "")
     .split(/\r?\n/)
@@ -11,7 +11,7 @@ function parseTextToEntries(text) {
     for (const pattern of patterns) {
       const match = line.match(pattern);
       if (match?.[1] && match?.[2]) {
-        entries.push({ term: match[1].trim(), meaning: match[2].trim() });
+        entries.push({ term: match[1].trim(), meaning: match[2].trim(), pageNumber });
         break;
       }
     }
@@ -34,25 +34,93 @@ function parseCSV(text) {
   return entries;
 }
 
-async function runOCR(file) {
+function parsePageRange(pageRangeRaw) {
+  const text = String(pageRangeRaw || "").trim();
+  const match = text.match(/^(\d+)\s*[-:]\s*(\d+)$/);
+  if (!match) return null;
+  const start = Math.max(1, Number.parseInt(match[1], 10));
+  const end = Math.max(start, Number.parseInt(match[2], 10));
+  return { start, end };
+}
+
+function pickTermMeaningFromObject(row) {
+  if (!row || typeof row !== "object") return null;
+  const lowerMap = Object.fromEntries(Object.entries(row).map(([key, value]) => [String(key).toLowerCase(), value]));
+  const term =
+    lowerMap.term ||
+    lowerMap.word ||
+    lowerMap.phrase ||
+    lowerMap.question ||
+    Object.values(row)[0];
+  const meaning =
+    lowerMap.meaning ||
+    lowerMap.definition ||
+    lowerMap.answer ||
+    Object.values(row)[1];
+
+  if (!term || !meaning) return null;
+  return { term: String(term).trim(), meaning: String(meaning).trim() };
+}
+
+async function extractPDFText(file) {
+  const mod = await import("pdf-parse");
+  const pdfParse = mod.default || mod;
+  const buffer = Buffer.from(await file.arrayBuffer());
+  const result = await pdfParse(buffer);
+  return String(result?.text || "");
+}
+
+async function extractDOCXText(file) {
+  const mod = await import("mammoth");
+  const mammoth = mod.default || mod;
+  const buffer = Buffer.from(await file.arrayBuffer());
+  const result = await mammoth.extractRawText({ buffer });
+  return String(result?.value || "");
+}
+
+async function extractXLSXEntries(file) {
+  const XLSX = await import("xlsx");
+  const buffer = Buffer.from(await file.arrayBuffer());
+  const workbook = XLSX.read(buffer, { type: "buffer" });
+  const entries = [];
+
+  for (const sheetName of workbook.SheetNames) {
+    const sheet = workbook.Sheets[sheetName];
+    const rows = XLSX.utils.sheet_to_json(sheet, { defval: "" });
+    for (const row of rows) {
+      const picked = pickTermMeaningFromObject(row);
+      if (picked?.term && picked?.meaning) {
+        entries.push(picked);
+      }
+    }
+  }
+
+  return entries;
+}
+
+async function runOCR(file, pageRange) {
   const ocrKey = process.env.OCR_SPACE_KEY;
   if (!ocrKey) return "";
-  const arrayBuffer = await file.arrayBuffer();
-  const base64 = Buffer.from(arrayBuffer).toString("base64");
-  const type = file.type || "image/png";
+  const form = new FormData();
+  form.append("file", file, file.name || "upload");
+  form.append("language", "eng");
+  form.append("isOverlayRequired", "false");
+  if (pageRange?.start && pageRange?.end) {
+    form.append("pages", `${pageRange.start}-${pageRange.end}`);
+  }
 
   const response = await fetch("https://api.ocr.space/parse/image", {
     method: "POST",
     headers: {
       apikey: ocrKey,
-      "Content-Type": "application/x-www-form-urlencoded",
     },
-    body: `base64Image=data:${type};base64,${base64}&language=eng&isOverlayRequired=false`,
+    body: form,
   });
 
   if (!response.ok) return "";
   const data = await response.json();
-  return data?.ParsedResults?.[0]?.ParsedText || "";
+  const parsed = Array.isArray(data?.ParsedResults) ? data.ParsedResults : [];
+  return parsed.map((item) => item?.ParsedText || "").filter(Boolean).join("\n");
 }
 
 export async function POST(request) {
@@ -60,6 +128,7 @@ export async function POST(request) {
     const formData = await request.formData();
     const file = formData.get("file");
     const category = formData.get("category");
+    const pageRange = parsePageRange(formData.get("pageRange"));
 
     if (!file || !category) {
       return Response.json({ error: "File and category are required." }, { status: 400 });
@@ -94,19 +163,34 @@ export async function POST(request) {
     }
 
     if (name.endsWith(".jpg") || name.endsWith(".jpeg") || name.endsWith(".png") || type.startsWith("image/")) {
-      const ocrText = await runOCR(file);
+      const ocrText = await runOCR(file, pageRange);
       entries = parseTextToEntries(ocrText);
       return Response.json({ entries });
     }
 
-    // Minimal text extraction fallback for PDF/DOC/DOCX/XLSX without native parser deps.
-    if (
-      name.endsWith(".pdf") ||
-      name.endsWith(".doc") ||
-      name.endsWith(".docx") ||
-      name.endsWith(".xls") ||
-      name.endsWith(".xlsx")
-    ) {
+    if (name.endsWith(".pdf")) {
+      const textFromPdf = await extractPDFText(file);
+      entries = parseTextToEntries(textFromPdf);
+      if (entries.length === 0) {
+        const ocrText = await runOCR(file, pageRange);
+        entries = parseTextToEntries(ocrText);
+      }
+      return Response.json({ entries });
+    }
+
+    if (name.endsWith(".docx")) {
+      const textFromDocx = await extractDOCXText(file);
+      entries = parseTextToEntries(textFromDocx);
+      return Response.json({ entries });
+    }
+
+    if (name.endsWith(".xlsx") || name.endsWith(".xls")) {
+      entries = await extractXLSXEntries(file);
+      return Response.json({ entries });
+    }
+
+    if (name.endsWith(".doc")) {
+      // Legacy DOC binary format is hard to parse without native tools.
       const rawText = Buffer.from(await file.arrayBuffer()).toString("utf-8");
       entries = parseTextToEntries(rawText);
       return Response.json({ entries });

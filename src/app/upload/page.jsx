@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { Upload, CheckCircle, AlertCircle, Loader, Plus } from "lucide-react";
 import { addCategory, addEntry, addFile, getAllCategories, initDB } from "@/utils/db";
 
-const acceptedTypes = ".pdf,.doc,.docx,.xlsx,.csv,.txt,.jpg,.jpeg,.png,.json";
+const acceptedTypes = ".pdf,.doc,.docx,.xls,.xlsx,.csv,.txt,.jpg,.jpeg,.png,.json";
 
 function uniqueByTermMeaning(entries) {
   const seen = new Set();
@@ -12,6 +12,77 @@ function uniqueByTermMeaning(entries) {
     seen.add(key);
     return true;
   });
+}
+
+function parseTextToEntries(text) {
+  const lines = String(text || "")
+    .split(/\r?\n/)
+    .map((line) => line.trim())
+    .filter(Boolean);
+  const patterns = [/^(.+?)\s*[-–—]\s*(.+)$/, /^(.+?)\s*:\s*(.+)$/, /^(.+?)\s*=\s*(.+)$/];
+  const entries = [];
+
+  for (const line of lines) {
+    for (const pattern of patterns) {
+      const match = line.match(pattern);
+      if (match?.[1] && match?.[2]) {
+        entries.push({ term: match[1].trim(), meaning: match[2].trim() });
+        break;
+      }
+    }
+  }
+  return entries;
+}
+
+function parseCSV(text) {
+  const rows = String(text || "")
+    .split(/\r?\n/)
+    .map((line) => line.trim())
+    .filter(Boolean);
+  const skipHeader = rows[0]?.toLowerCase().includes("term") ? 1 : 0;
+  const entries = [];
+
+  for (let i = skipHeader; i < rows.length; i += 1) {
+    const [term, meaning] = rows[i].split(",").map((cell) => cell?.trim()?.replace(/^"|"$/g, ""));
+    if (term && meaning) entries.push({ term, meaning });
+  }
+
+  return entries;
+}
+
+async function extractEntriesLocally(selectedFile) {
+  const name = String(selectedFile?.name || "").toLowerCase();
+  const type = String(selectedFile?.type || "").toLowerCase();
+
+  if (type === "application/json" || name.endsWith(".json")) {
+    const data = JSON.parse(await selectedFile.text());
+    if (Array.isArray(data)) {
+      return data
+        .map((row) => ({ term: row.term || row.word || "", meaning: row.meaning || row.definition || "" }))
+        .filter((row) => row.term && row.meaning);
+    }
+    if (Array.isArray(data?.entries)) {
+      return data.entries
+        .map((row) => ({ term: row.term || row.word || "", meaning: row.meaning || row.definition || "" }))
+        .filter((row) => row.term && row.meaning);
+    }
+    return [];
+  }
+
+  if (type === "text/csv" || name.endsWith(".csv")) {
+    return parseCSV(await selectedFile.text());
+  }
+
+  if (type === "text/plain" || name.endsWith(".txt")) {
+    return parseTextToEntries(await selectedFile.text());
+  }
+
+  if (name.endsWith(".pdf") || name.endsWith(".doc") || name.endsWith(".docx") || name.endsWith(".xls") || name.endsWith(".xlsx")) {
+    const rawText = new TextDecoder("utf-8", { fatal: false }).decode(await selectedFile.arrayBuffer());
+    return parseTextToEntries(rawText);
+  }
+
+  return [];
 }
 
 export default function UploadPage() {
@@ -58,21 +129,38 @@ export default function UploadPage() {
       setLogs((prev) => [...prev, "Uploading file..."]);
       setProgress(30);
 
-      const response = await fetch("/api/extract", { method: "POST", body });
-      const raw = await response.text();
-      let result;
-      try {
-        result = JSON.parse(raw);
-      } catch {
-        const shortBody = raw.slice(0, 140).replace(/\s+/g, " ").trim();
-        throw new Error(
-          `Upload API returned non-JSON response (${response.status}). ${shortBody || "Route may be missing on deployment."}`
-        );
-      }
-      if (!response.ok) throw new Error(result.error || "Upload failed");
+      let extractedEntries = [];
+      let usedLocalFallback = false;
 
-      const cleanEntries = uniqueByTermMeaning(result.entries || []);
-      setLogs((prev) => [...prev, `Extracted ${cleanEntries.length} terms`]);
+      try {
+        const response = await fetch("/api/extract", { method: "POST", body });
+        const raw = await response.text();
+        let result;
+        try {
+          result = JSON.parse(raw);
+        } catch {
+          const shortBody = raw.slice(0, 140).replace(/\s+/g, " ").trim();
+          throw new Error(
+            `Upload API returned non-JSON response (${response.status}). ${shortBody || "Route may be missing on deployment."}`
+          );
+        }
+        if (!response.ok) throw new Error(result.error || "Upload failed");
+        extractedEntries = result.entries || [];
+      } catch (apiError) {
+        usedLocalFallback = true;
+        setLogs((prev) => [...prev, `API failed, using local extraction fallback: ${apiError.message || "unknown error"}`]);
+        extractedEntries = await extractEntriesLocally(file);
+      }
+
+      const cleanEntries = uniqueByTermMeaning(extractedEntries);
+      if (!cleanEntries.length) {
+        throw new Error("No term-meaning pairs found. Use lines like 'term - meaning' or upload JSON/CSV with term+meaning columns.");
+      }
+
+      setLogs((prev) => [
+        ...prev,
+        `${usedLocalFallback ? "Locally extracted" : "Extracted"} ${cleanEntries.length} terms`,
+      ]);
       setProgress(60);
 
       const fileId = await addFile({
