@@ -1,10 +1,12 @@
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router";
 import { clearAllData } from "@/utils/db";
 import { defaultSettings, readSettings, saveSettings } from "@/utils/settings";
 import { useTheme } from "@/contexts/ThemeContext";
 
 export default function SettingsPage() {
   const { theme, toggleTheme } = useTheme();
+  const navigate = useNavigate();
   const [settings, setSettings] = useState(defaultSettings);
   const [saved, setSaved] = useState(false);
 
@@ -75,7 +77,7 @@ export default function SettingsPage() {
           onClick={async () => {
             if (!window.confirm("Clear all local data?")) return;
             await clearAllData();
-            window.location.href = "/home";
+            navigate("/home", { replace: true });
           }}
           className="rounded-xl bg-rose-600 px-4 py-2 text-white"
         >

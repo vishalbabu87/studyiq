@@ -1,10 +1,5 @@
-
-import { useEffect } from "react";
+import { Navigate } from "react-router";
 
 export default function Page() {
-  useEffect(() => {
-    window.location.href = "/home";
-  }, []);
-
-  return null;
+  return <Navigate to="/home" replace />;
 }

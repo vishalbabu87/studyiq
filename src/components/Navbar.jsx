@@ -1,6 +1,6 @@
 import { Home, Library, Moon, Settings, Sun, Upload, BookOpenCheck, Menu, X, ListChecks } from "lucide-react";
 import { useState } from "react";
-import { useLocation } from "react-router";
+import { Link, NavLink } from "react-router";
 import { useTheme } from "@/contexts/ThemeContext";
 
 const navItems = [
@@ -13,7 +13,6 @@ const navItems = [
 ];
 
 export default function Navbar() {
-  const location = useLocation();
   const { theme, toggleTheme } = useTheme();
   const [mobileOpen, setMobileOpen] = useState(false);
 
@@ -21,32 +20,33 @@ export default function Navbar() {
     <nav className="sticky top-0 z-50 bg-white/80 dark:bg-gray-900/80 backdrop-blur-xl border-b border-gray-200 dark:border-gray-800">
       <div className="max-w-7xl mx-auto px-4">
         <div className="flex items-center justify-between h-16">
-          <a href="/home" className="flex items-center gap-3">
+          <Link to="/home" className="flex items-center gap-3">
             <div className="w-9 h-9 rounded-2xl pink-blue-gradient flex items-center justify-center shadow-lg">
               <span className="text-white font-bold text-lg">S</span>
             </div>
             <span className="font-bold text-xl bg-gradient-to-r from-purple-600 via-pink-600 to-orange-500 bg-clip-text text-transparent">
               StudyIQ
             </span>
-          </a>
+          </Link>
 
           <div className="hidden md:flex items-center gap-1">
             {navItems.map((item) => {
               const Icon = item.icon;
-              const active = location.pathname === item.path;
               return (
-                <a
+                <NavLink
                   key={item.path}
-                  href={item.path}
-                  className={`flex items-center gap-2 px-4 py-2 rounded-xl transition-all ${
-                    active
-                      ? "pink-blue-gradient text-white shadow-lg"
-                      : "text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800"
-                  }`}
+                  to={item.path}
+                  className={({ isActive }) =>
+                    `flex items-center gap-2 px-4 py-2 rounded-xl transition-all ${
+                      isActive
+                        ? "pink-blue-gradient text-white shadow-lg"
+                        : "text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800"
+                    }`
+                  }
                 >
                   <Icon size={16} />
                   <span className="font-medium text-sm">{item.label}</span>
-                </a>
+                </NavLink>
               );
             })}
           </div>
@@ -77,21 +77,22 @@ export default function Navbar() {
           <div className="px-4 py-4 space-y-2">
             {navItems.map((item) => {
               const Icon = item.icon;
-              const active = location.pathname === item.path;
               return (
-                <a
+                <NavLink
                   key={item.path}
-                  href={item.path}
+                  to={item.path}
                   onClick={() => setMobileOpen(false)}
-                  className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-all ${
-                    active
-                      ? "pink-blue-gradient text-white"
-                      : "text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800"
-                  }`}
+                  className={({ isActive }) =>
+                    `flex items-center gap-3 px-4 py-3 rounded-xl transition-all ${
+                      isActive
+                        ? "pink-blue-gradient text-white"
+                        : "text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800"
+                    }`
+                  }
                 >
                   <Icon size={18} />
                   <span className="font-medium">{item.label}</span>
-                </a>
+                </NavLink>
               );
             })}
           </div>

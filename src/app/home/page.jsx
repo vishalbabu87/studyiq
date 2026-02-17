@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { TrendingUp, FileText, Target, Award, Brain, Zap } from "lucide-react";
+import { Link } from "react-router";
 import { getAllEntries, getAllFiles, getAllQuizHistory, initDB } from "@/utils/db";
 
 export default function HomePage() {
@@ -75,7 +76,7 @@ export default function HomePage() {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <a href="/upload">
+          <Link to="/upload">
             <div className="bg-white dark:bg-gray-900 rounded-3xl p-8 shadow-lg hover-lift cursor-pointer border border-gray-200 dark:border-gray-800 group">
               <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-purple-600 to-pink-600 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform shadow-lg">
                 <FileText className="text-white" size={28} />
@@ -83,9 +84,9 @@ export default function HomePage() {
               <h3 className="text-2xl font-bold mb-2 text-gray-900 dark:text-white">Upload Files</h3>
               <p className="text-gray-600 dark:text-gray-400">Upload PDFs, documents, images, or JSON files to extract terms and definitions</p>
             </div>
-          </a>
+          </Link>
 
-          <a href="/quiz">
+          <Link to="/quiz">
             <div className="bg-gradient-to-br from-purple-600 via-pink-600 to-orange-500 rounded-3xl p-8 shadow-2xl hover-lift cursor-pointer group">
               <div className="w-16 h-16 rounded-2xl bg-white/20 backdrop-blur-sm flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
                 <TrendingUp className="text-white" size={28} />
@@ -93,7 +94,7 @@ export default function HomePage() {
               <h3 className="text-2xl font-bold mb-2 text-white">Start Quiz</h3>
               <p className="text-white/90">Create custom quizzes with AI or test yourself with sequential learning</p>
             </div>
-          </a>
+          </Link>
         </div>
       </div>
     </div>
