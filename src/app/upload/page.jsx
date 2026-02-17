@@ -59,7 +59,16 @@ export default function UploadPage() {
       setProgress(30);
 
       const response = await fetch("/api/extract", { method: "POST", body });
-      const result = await response.json();
+      const raw = await response.text();
+      let result;
+      try {
+        result = JSON.parse(raw);
+      } catch {
+        const shortBody = raw.slice(0, 140).replace(/\s+/g, " ").trim();
+        throw new Error(
+          `Upload API returned non-JSON response (${response.status}). ${shortBody || "Route may be missing on deployment."}`
+        );
+      }
       if (!response.ok) throw new Error(result.error || "Upload failed");
 
       const cleanEntries = uniqueByTermMeaning(result.entries || []);

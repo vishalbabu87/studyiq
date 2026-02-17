@@ -79,7 +79,6 @@
 		"@types/react": "^19.0.0",
 		"@types/react-dom": "^19.0.0",
 		"@types/ws": "^8.18.1",
-		"@vercel/react-router": "^1.0.0",
 		"autoprefixer": "^10.4.21",
 		"babel-plugin-react-require": "^4.0.3",
 		"fast-glob": "^3.3.3",
