@@ -1,6 +1,15 @@
 import { getToken } from '@auth/core/jwt';
 
 export async function GET(request) {
+	if (!process.env.AUTH_SECRET) {
+		return new Response(JSON.stringify({ error: 'Auth not configured' }), {
+			status: 503,
+			headers: {
+				'Content-Type': 'application/json',
+			},
+		});
+	}
+
 	const secureCookie = (process.env.AUTH_URL ?? '').startsWith('https');
 
 	const [token, jwt] = await Promise.all([

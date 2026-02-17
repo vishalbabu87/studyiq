@@ -95,7 +95,7 @@ if (process.env.AUTH_SECRET) {
   app.use(
     '*',
     initAuthConfig((c) => ({
-      secret: c.env.AUTH_SECRET,
+      secret: c.env?.AUTH_SECRET ?? process.env.AUTH_SECRET,
       pages: {
         signIn: '/account/signin',
         signOut: '/account/logout',
@@ -233,6 +233,16 @@ app.all('/integrations/:path{.+}', async (c, next) => {
   const queryParams = c.req.query();
   const url = `${process.env.NEXT_PUBLIC_CREATE_BASE_URL ?? 'https://www.create.xyz'}/integrations/${c.req.param('path')}${Object.keys(queryParams).length > 0 ? `?${new URLSearchParams(queryParams).toString()}` : ''}`;
 
+  const forwardedHeaders = Object.fromEntries(
+    Object.entries({
+      ...c.req.header(),
+      'X-Forwarded-For': process.env.NEXT_PUBLIC_CREATE_HOST,
+      'x-createxyz-host': process.env.NEXT_PUBLIC_CREATE_HOST,
+      Host: process.env.NEXT_PUBLIC_CREATE_HOST,
+      'x-createxyz-project-group-id': process.env.NEXT_PUBLIC_PROJECT_GROUP_ID,
+    }).filter(([, value]) => typeof value === 'string' && value.length > 0)
+  );
+
   return proxy(url, {
     method: c.req.method,
     body: c.req.raw.body ?? null,
@@ -240,13 +250,7 @@ app.all('/integrations/:path{.+}', async (c, next) => {
     // required for streaming integrations
     duplex: 'half',
     redirect: 'manual',
-    headers: {
-      ...c.req.header(),
-      'X-Forwarded-For': process.env.NEXT_PUBLIC_CREATE_HOST,
-      'x-createxyz-host': process.env.NEXT_PUBLIC_CREATE_HOST,
-      Host: process.env.NEXT_PUBLIC_CREATE_HOST,
-      'x-createxyz-project-group-id': process.env.NEXT_PUBLIC_PROJECT_GROUP_ID,
-    },
+    headers: forwardedHeaders,
   });
 });
 
