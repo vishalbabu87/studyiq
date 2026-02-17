@@ -1,15 +1,16 @@
 import { useEffect, useState } from "react";
+import { Folder, FileText, Eye } from "lucide-react";
 import { getAllCategories, getEntriesByFile, getFilesByCategory, initDB } from "@/utils/db";
 
-const perPage = 25;
+const entriesPerPage = 25;
 
 export default function LibraryPage() {
   const [categories, setCategories] = useState([]);
-  const [selectedCategory, setSelectedCategory] = useState("");
+  const [selectedCategory, setSelectedCategory] = useState(null);
   const [files, setFiles] = useState([]);
-  const [selectedFile, setSelectedFile] = useState(0);
+  const [selectedFile, setSelectedFile] = useState(null);
   const [entries, setEntries] = useState([]);
-  const [page, setPage] = useState(1);
+  const [currentPage, setCurrentPage] = useState(1);
 
   useEffect(() => {
     initDB().then(() => getAllCategories().then(setCategories));
@@ -17,98 +18,114 @@ export default function LibraryPage() {
 
   useEffect(() => {
     if (!selectedCategory) return;
-    getFilesByCategory(selectedCategory).then((data) => {
-      setFiles(data);
-      setSelectedFile(0);
-      setEntries([]);
-    });
+    getFilesByCategory(selectedCategory).then(setFiles);
+    setSelectedFile(null);
+    setEntries([]);
   }, [selectedCategory]);
 
   useEffect(() => {
     if (!selectedFile) return;
     getEntriesByFile(selectedFile).then((data) => {
       setEntries(data);
-      setPage(1);
+      setCurrentPage(1);
     });
   }, [selectedFile]);
 
-  const totalPages = Math.max(1, Math.ceil(entries.length / perPage));
-  const slice = entries.slice((page - 1) * perPage, page * perPage);
+  const paginatedEntries = entries.slice((currentPage - 1) * entriesPerPage, currentPage * entriesPerPage);
+  const totalPages = Math.ceil(entries.length / entriesPerPage);
 
   return (
-    <section className="grid gap-4 lg:grid-cols-3">
-      <div className="glass-card p-5">
-        <h2 className="mb-3 text-xl font-semibold">Categories</h2>
-        <div className="space-y-2">
-          {categories.map((cat) => (
-            <button
-              type="button"
-              key={cat.id}
-              onClick={() => setSelectedCategory(cat.name)}
-              className={`w-full rounded-xl px-4 py-3 text-left ${
-                selectedCategory === cat.name ? "bg-slate-900 text-white dark:bg-slate-100 dark:text-slate-900" : "bg-slate-100 dark:bg-slate-900"
-              }`}
-            >
-              {cat.name}
-            </button>
-          ))}
-        </div>
-      </div>
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-indigo-50 to-purple-50 dark:from-gray-950 dark:via-gray-900 dark:to-gray-950">
+      <div className="max-w-7xl mx-auto px-4 py-8">
+        <h1 className="text-3xl md:text-4xl font-bold mb-8 bg-gradient-to-r from-purple-600 via-pink-600 to-orange-500 bg-clip-text text-transparent">
+          Your Library
+        </h1>
 
-      <div className="glass-card p-5">
-        <h2 className="mb-3 text-xl font-semibold">Files</h2>
-        <div className="space-y-2">
-          {files.map((file) => (
-            <button
-              type="button"
-              key={file.id}
-              onClick={() => setSelectedFile(file.id)}
-              className={`w-full rounded-xl px-4 py-3 text-left ${
-                selectedFile === file.id ? "bg-slate-900 text-white dark:bg-slate-100 dark:text-slate-900" : "bg-slate-100 dark:bg-slate-900"
-              }`}
-            >
-              <p className="font-medium">{file.name}</p>
-              <p className="text-xs opacity-70">{file.entryCount} entries</p>
-            </button>
-          ))}
-        </div>
-      </div>
-
-      <div className="glass-card p-5">
-        <h2 className="mb-3 text-xl font-semibold">Entries ({entries.length})</h2>
-        <div className="max-h-[440px] space-y-2 overflow-auto">
-          {slice.map((entry) => (
-            <div key={entry.id} className="rounded-xl bg-slate-100 p-3 dark:bg-slate-900">
-              <p className="font-medium">{entry.term}</p>
-              <p className="text-sm text-slate-600 dark:text-slate-300">{entry.meaning}</p>
-              <p className="text-xs text-slate-500 dark:text-slate-400">Wrong {entry.wrongCount || 0}</p>
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          <div className="bg-white dark:bg-gray-900 rounded-3xl p-6 shadow-lg border border-gray-200 dark:border-gray-800">
+            <h2 className="text-xl font-bold mb-4 text-gray-900 dark:text-white flex items-center gap-2">
+              <Folder size={24} className="text-purple-600" />
+              Categories
+            </h2>
+            <div className="space-y-2">
+              {categories.map((cat) => (
+                <button
+                  key={cat.id}
+                  onClick={() => setSelectedCategory(cat.name)}
+                  className={`w-full text-left px-4 py-3 rounded-xl transition-all ${
+                    selectedCategory === cat.name
+                      ? "bg-gradient-to-r from-purple-600 to-pink-600 text-white"
+                      : "bg-gray-50 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
+                  }`}
+                >
+                  {cat.name}
+                </button>
+              ))}
             </div>
-          ))}
-        </div>
-        {entries.length > perPage && (
-          <div className="mt-3 flex items-center justify-between">
-            <button
-              type="button"
-              onClick={() => setPage((p) => Math.max(1, p - 1))}
-              disabled={page <= 1}
-              className="rounded-lg bg-slate-200 px-3 py-1 disabled:opacity-40 dark:bg-slate-800"
-            >
-              Prev
-            </button>
-            <span className="text-sm">
-              {page}/{totalPages}
-            </span>
-            <button
-              type="button"
-              onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
-              disabled={page >= totalPages}
-              className="rounded-lg bg-slate-200 px-3 py-1 disabled:opacity-40 dark:bg-slate-800"
-            >
-              Next
-            </button>
           </div>
-        )}
+
+          <div className="bg-white dark:bg-gray-900 rounded-3xl p-6 shadow-lg border border-gray-200 dark:border-gray-800">
+            <h2 className="text-xl font-bold mb-4 text-gray-900 dark:text-white flex items-center gap-2">
+              <FileText size={24} className="text-blue-600" />
+              Files
+            </h2>
+            <div className="space-y-2">
+              {files.map((file) => (
+                <button
+                  key={file.id}
+                  onClick={() => setSelectedFile(file.id)}
+                  className={`w-full text-left px-4 py-3 rounded-xl transition-all ${
+                    selectedFile === file.id
+                      ? "bg-gradient-to-r from-blue-600 to-cyan-600 text-white"
+                      : "bg-gray-50 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
+                  }`}
+                >
+                  <div className="font-medium truncate">{file.name}</div>
+                  <div className="text-sm opacity-70">{file.entryCount} terms</div>
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <div className="bg-white dark:bg-gray-900 rounded-3xl p-6 shadow-lg border border-gray-200 dark:border-gray-800">
+            <h2 className="text-xl font-bold mb-4 text-gray-900 dark:text-white flex items-center gap-2">
+              <Eye size={24} className="text-green-600" />
+              Terms ({entries.length})
+            </h2>
+            <div className="space-y-3 max-h-96 overflow-y-auto">
+              {paginatedEntries.map((entry) => (
+                <div key={entry.id} className="p-4 bg-gray-50 dark:bg-gray-800 rounded-xl">
+                  <div className="font-semibold text-gray-900 dark:text-white mb-1">{entry.term}</div>
+                  <div className="text-sm text-gray-600 dark:text-gray-400">{entry.meaning}</div>
+                  {entry.wrongCount > 0 && <div className="mt-2 text-xs text-red-500">Wrong: {entry.wrongCount} times</div>}
+                </div>
+              ))}
+            </div>
+
+            {totalPages > 1 && (
+              <div className="mt-4 flex items-center justify-between">
+                <button
+                  onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+                  disabled={currentPage === 1}
+                  className="px-4 py-2 rounded-xl bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 disabled:opacity-50"
+                >
+                  Previous
+                </button>
+                <span className="text-sm text-gray-600 dark:text-gray-400">
+                  Page {currentPage} of {totalPages}
+                </span>
+                <button
+                  onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
+                  disabled={currentPage === totalPages}
+                  className="px-4 py-2 rounded-xl bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 disabled:opacity-50"
+                >
+                  Next
+                </button>
+              </div>
+            )}
+          </div>
+        </div>
       </div>
-    </section>
+    </div>
   );
 }

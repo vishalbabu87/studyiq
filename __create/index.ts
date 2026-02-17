@@ -35,10 +35,17 @@ for (const method of ['log', 'info', 'warn', 'error', 'debug'] as const) {
   };
 }
 
-const pool = new Pool({
-  connectionString: process.env.DATABASE_URL,
-});
-const adapter = NeonAdapter(pool);
+let adapter: ReturnType<typeof NeonAdapter> | null = null;
+
+function getAdapter() {
+  if (!adapter) {
+    const pool = new Pool({
+      connectionString: process.env.DATABASE_URL,
+    });
+    adapter = NeonAdapter(pool);
+  }
+  return adapter;
+}
 
 const app = new Hono();
 
@@ -149,7 +156,7 @@ if (process.env.AUTH_SECRET) {
             }
 
             // logic to verify if user exists
-            const user = await adapter.getUserByEmail(email);
+            const user = await getAdapter().getUserByEmail(email);
             if (!user) {
               return null;
             }
@@ -195,16 +202,16 @@ if (process.env.AUTH_SECRET) {
             }
 
             // logic to verify if user exists
-            const user = await adapter.getUserByEmail(email);
+            const user = await getAdapter().getUserByEmail(email);
             if (!user) {
-              const newUser = await adapter.createUser({
+              const newUser = await getAdapter().createUser({
                 id: crypto.randomUUID(),
                 emailVerified: null,
                 email,
                 name: typeof name === 'string' && name.length > 0 ? name : undefined,
                 image: typeof image === 'string' && image.length > 0 ? image : undefined,
               });
-              await adapter.linkAccount({
+              await getAdapter().linkAccount({
                 extraData: {
                   password: await hash(password),
                 },

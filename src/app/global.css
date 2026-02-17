@@ -25,16 +25,12 @@
 @layer utilities {
   .bg-app-gradient {
     background-image:
-      radial-gradient(at 10% 2%, rgba(236, 72, 153, 0.1) 0px, transparent 45%),
-      radial-gradient(at 92% 96%, rgba(249, 115, 22, 0.08) 0px, transparent 40%),
-      linear-gradient(180deg, rgb(248 250 252), rgb(241 245 249));
+      linear-gradient(to bottom right, rgb(249 250 251), rgb(243 232 255), rgb(253 242 248));
   }
 
   .dark .bg-app-gradient {
     background-image:
-      radial-gradient(at 8% 8%, rgba(236, 72, 153, 0.12) 0px, transparent 45%),
-      radial-gradient(at 92% 92%, rgba(249, 115, 22, 0.1) 0px, transparent 45%),
-      linear-gradient(180deg, rgb(2 6 23), rgb(15 23 42));
+      linear-gradient(to bottom right, rgb(3 7 18), rgb(17 24 39), rgb(3 7 18));
   }
 
   .glass-card {
@@ -56,6 +52,15 @@
   .card-hover:hover {
     transform: translateY(-2px);
     box-shadow: 0 16px 30px -24px rgba(99, 102, 241, 0.4);
+  }
+
+  .hover-lift {
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .hover-lift:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 24px rgba(0, 0, 0, 0.15);
   }
 
   .text-strong {

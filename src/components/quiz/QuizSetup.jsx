@@ -66,17 +66,33 @@ export default function QuizSetup({ onStartQuiz, prefill }) {
   };
 
   return (
-    <section className="glass-card p-6 sm:p-8">
+    <section className="max-w-3xl mx-auto">
+      <div className="text-center mb-8">
+        <h1 className="text-3xl md:text-4xl font-bold mb-3 bg-gradient-to-r from-purple-600 via-pink-600 to-orange-500 bg-clip-text text-transparent">
+          Start Quiz
+        </h1>
+        <p className="text-gray-600 dark:text-gray-400">
+          Step {step + 1} of {steps.length}: {steps[step]}
+        </p>
+      </div>
+
+      <div className="mb-6">
+        <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
+          <div className="h-2 rounded-full bg-gradient-to-r from-purple-600 to-pink-600 transition-all" style={{ width: `${((step + 1) / steps.length) * 100}%` }} />
+        </div>
+      </div>
+
+      <div className="bg-white dark:bg-gray-900 rounded-3xl p-8 shadow-xl border border-gray-200 dark:border-gray-800">
       <div className="mb-6 flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold">Quiz Setup</h1>
-          <p className="text-sm text-slate-600 dark:text-slate-300">Step-by-step flow with sequence support</p>
+          <h2 className="text-xl font-bold">Quiz Configuration</h2>
+          <p className="text-sm text-gray-600 dark:text-gray-400">Step-by-step flow with sequence support</p>
         </div>
         {!started && (
           <button
             type="button"
             onClick={() => setStarted(true)}
-            className="rounded-xl bg-slate-900 px-5 py-3 text-sm font-semibold text-white dark:bg-slate-100 dark:text-slate-900"
+            className="rounded-xl pink-blue-gradient px-5 py-3 text-sm font-semibold text-white"
           >
             Start Quiz
           </button>
@@ -104,8 +120,8 @@ export default function QuizSetup({ onStartQuiz, prefill }) {
                   onClick={() => setSelectedCategory(cat.name)}
                   className={`w-full rounded-xl border px-4 py-3 text-left ${
                     selectedCategory === cat.name
-                      ? "border-sky-500 bg-sky-500/15"
-                      : "border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-950/40"
+                      ? "bg-gradient-to-r from-purple-600 to-pink-600 text-white border-transparent"
+                      : "border-slate-200 bg-gray-50 dark:border-slate-800 dark:bg-slate-800/50"
                   }`}
                 >
                   {cat.name}
@@ -128,8 +144,8 @@ export default function QuizSetup({ onStartQuiz, prefill }) {
                   }}
                   className={`w-full rounded-xl border px-4 py-3 text-left ${
                     String(file.id) === selectedFile
-                      ? "border-indigo-500 bg-indigo-500/15"
-                      : "border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-950/40"
+                      ? "bg-gradient-to-r from-blue-600 to-cyan-600 text-white border-transparent"
+                      : "border-slate-200 bg-gray-50 dark:border-slate-800 dark:bg-slate-800/50"
                   }`}
                 >
                   <div className="font-medium">{file.name}</div>
@@ -160,9 +176,9 @@ export default function QuizSetup({ onStartQuiz, prefill }) {
                     key={count}
                     type="button"
                     onClick={() => setQuestionCount(count)}
-                    className={`rounded-xl px-4 py-2 text-sm ${
-                      questionCount === count
-                        ? "bg-slate-900 text-white dark:bg-slate-100 dark:text-slate-900"
+                  className={`rounded-xl px-4 py-2 text-sm ${
+                    questionCount === count
+                        ? "bg-gradient-to-r from-purple-600 to-pink-600 text-white"
                         : "bg-slate-100 dark:bg-slate-800"
                     }`}
                   >
@@ -188,7 +204,7 @@ export default function QuizSetup({ onStartQuiz, prefill }) {
                   key={level}
                   onClick={() => setDifficulty(level)}
                   className={`rounded-xl px-4 py-2 capitalize ${
-                    difficulty === level ? "bg-emerald-600 text-white" : "bg-slate-100 dark:bg-slate-800"
+                    difficulty === level ? "bg-gradient-to-r from-orange-600 to-red-600 text-white" : "bg-slate-100 dark:bg-slate-800"
                   }`}
                 >
                   {level}
@@ -209,7 +225,7 @@ export default function QuizSetup({ onStartQuiz, prefill }) {
                   key={value}
                   onClick={() => setMode(value)}
                   className={`rounded-xl px-4 py-2 ${
-                    mode === value ? "bg-fuchsia-600 text-white" : "bg-slate-100 dark:bg-slate-800"
+                    mode === value ? "bg-gradient-to-r from-green-600 to-emerald-600 text-white" : "bg-slate-100 dark:bg-slate-800"
                   }`}
                 >
                   {label}
@@ -236,7 +252,7 @@ export default function QuizSetup({ onStartQuiz, prefill }) {
               type="button"
               onClick={() => setStep((s) => Math.max(0, s - 1))}
               disabled={step === 0}
-              className="rounded-xl bg-slate-200 px-4 py-2 disabled:opacity-40 dark:bg-slate-800"
+              className="rounded-xl bg-gray-200 dark:bg-gray-700 px-4 py-2 disabled:opacity-40"
             >
               Back
             </button>
@@ -245,7 +261,7 @@ export default function QuizSetup({ onStartQuiz, prefill }) {
                 type="button"
                 onClick={() => setStep((s) => Math.min(steps.length - 1, s + 1))}
                 disabled={!canContinue()}
-                className="rounded-xl bg-slate-900 px-4 py-2 text-white disabled:opacity-40 dark:bg-slate-100 dark:text-slate-900"
+                className="rounded-xl pink-blue-gradient px-4 py-2 text-white disabled:opacity-40"
               >
                 Next
               </button>
@@ -253,7 +269,7 @@ export default function QuizSetup({ onStartQuiz, prefill }) {
               <button
                 type="button"
                 onClick={onSubmit}
-                className="rounded-xl bg-emerald-600 px-4 py-2 font-semibold text-white"
+                className="rounded-xl bg-gradient-to-r from-green-600 to-emerald-600 px-4 py-2 font-semibold text-white"
               >
                 Launch Quiz
               </button>
@@ -261,6 +277,7 @@ export default function QuizSetup({ onStartQuiz, prefill }) {
           </div>
         </>
       )}
+      </div>
     </section>
   );
 }

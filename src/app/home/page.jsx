@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { TrendingUp, FileText, Target, Award, Brain, Zap } from "lucide-react";
 import { getAllEntries, getAllFiles, getAllQuizHistory, initDB } from "@/utils/db";
 
 export default function HomePage() {
@@ -7,82 +8,94 @@ export default function HomePage() {
     totalEntries: 0,
     totalAttempts: 0,
     accuracy: 0,
-    weakCategory: "-",
     weakWords: 0,
   });
 
   useEffect(() => {
     initDB().then(async () => {
       const [entries, files, history] = await Promise.all([getAllEntries(), getAllFiles(), getAllQuizHistory()]);
-      const totals = history.reduce(
-        (acc, row) => {
-          acc.correct += row.correct || 0;
-          acc.total += row.total || 0;
-          return acc;
-        },
-        { correct: 0, total: 0 },
-      );
-      const categoryMap = new Map();
-      entries.forEach((entry) => {
-        const wrong = entry.wrongCount || 0;
-        categoryMap.set(entry.category, (categoryMap.get(entry.category) || 0) + wrong);
+
+      let correct = 0;
+      let total = 0;
+      history.forEach((quiz) => {
+        correct += quiz.correct || 0;
+        total += quiz.total || 0;
       });
-      const weakCategory =
-        [...categoryMap.entries()].sort((a, b) => b[1] - a[1])[0]?.[0] || (entries[0]?.category ?? "-");
 
       setStats({
         totalFiles: files.length,
         totalEntries: entries.length,
         totalAttempts: history.length,
-        accuracy: totals.total > 0 ? Math.round((totals.correct / totals.total) * 100) : 0,
-        weakCategory,
-        weakWords: entries.filter((e) => (e.wrongCount || 0) >= 2).length,
+        accuracy: total > 0 ? Math.round((correct / total) * 100) : 0,
+        weakWords: entries.filter((entry) => (entry.wrongCount || 0) >= 2).length,
       });
     });
   }, []);
 
-  const cards = [
-    { label: "Total Files", value: stats.totalFiles, accent: "from-pink-500 to-fuchsia-500" },
-    { label: "Total Entries", value: stats.totalEntries, accent: "from-fuchsia-500 to-violet-500" },
-    { label: "Total Attempts", value: stats.totalAttempts, accent: "from-violet-500 to-orange-500" },
-    { label: "Accuracy %", value: `${stats.accuracy}%`, accent: "from-orange-500 to-amber-400" },
-    { label: "Weak Category", value: stats.weakCategory, accent: "from-rose-500 to-orange-500" },
-    { label: "Weak Words", value: stats.weakWords, accent: "from-pink-500 to-rose-500" },
+  const statCards = [
+    { icon: FileText, label: "Total Files", value: stats.totalFiles, color: "from-blue-500 to-cyan-500" },
+    { icon: Brain, label: "Total Terms", value: stats.totalEntries, color: "from-purple-500 to-pink-500" },
+    { icon: Target, label: "Quiz Attempts", value: stats.totalAttempts, color: "from-orange-500 to-red-500" },
+    { icon: Award, label: "Accuracy", value: `${stats.accuracy}%`, color: "from-green-500 to-emerald-500" },
+    { icon: Zap, label: "Weak Terms", value: stats.weakWords, color: "from-yellow-500 to-orange-500" },
   ];
 
   return (
-    <section className="space-y-8">
-      <div className="glass-card soft-glow overflow-hidden p-6">
-        <div className="absolute inset-0 opacity-30" />
-        <h1 className="mb-2 text-4xl font-black tracking-tight sm:text-5xl">
-          <span className="text-strong">Dashboard</span>
-        </h1>
-        <p className="text-base text-muted">Balanced hybrid engine: local core + AI enhancement.</p>
-        <div className="mt-3 h-1.5 w-36 rounded-full pink-blue-gradient" />
-      </div>
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-purple-50 to-pink-50 dark:from-gray-950 dark:via-gray-900 dark:to-gray-950">
+      <div className="max-w-7xl mx-auto px-4 py-8">
+        <div className="text-center mb-12">
+          <h1 className="text-4xl md:text-5xl font-bold mb-4">
+            Welcome to{" "}
+            <span className="bg-gradient-to-r from-purple-600 via-pink-600 to-orange-500 bg-clip-text text-transparent">
+              StudyIQ
+            </span>
+          </h1>
+          <p className="text-gray-600 dark:text-gray-400 text-lg max-w-2xl mx-auto">
+            Your intelligent learning companion powered by AI and smart quiz generation
+          </p>
+        </div>
 
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-        {cards.map((card) => (
-          <div key={card.label} className="glass-card card-hover overflow-hidden p-4">
-            <div className={`mb-3 h-1.5 rounded-full bg-gradient-to-r ${card.accent}`} />
-            <p className="text-sm font-medium text-muted">{card.label}</p>
-            <p className="mt-2 text-3xl font-black leading-none text-slate-900 dark:text-white sm:text-4xl">{card.value}</p>
-          </div>
-        ))}
-      </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
+          {statCards.map((card) => {
+            const Icon = card.icon;
+            return (
+              <div key={card.label} className="bg-white dark:bg-gray-900 rounded-3xl p-6 shadow-lg hover-lift border border-gray-200 dark:border-gray-800">
+                <div className="flex items-center gap-4">
+                  <div className={`w-14 h-14 rounded-2xl bg-gradient-to-br ${card.color} flex items-center justify-center shadow-lg`}>
+                    <Icon className="text-white" size={24} />
+                  </div>
+                  <div>
+                    <div className="text-3xl font-bold text-gray-900 dark:text-white">{card.value}</div>
+                    <div className="text-sm text-gray-600 dark:text-gray-400">{card.label}</div>
+                  </div>
+                </div>
+              </div>
+            );
+          })}
+        </div>
 
-      <div className="grid gap-4 md:grid-cols-2">
-        <a href="/upload" className="glass-card card-hover block p-4">
-          <p className="mb-1 text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">Quick Action</p>
-          <p className="text-xl font-bold">Upload New Material</p>
-          <p className="mt-2 text-sm text-muted">Add files and extract terms into your categories.</p>
-        </a>
-        <a href="/quiz" className="glass-card card-hover block p-4">
-          <p className="mb-1 text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">Quick Action</p>
-          <p className="text-xl font-bold">Start Focus Quiz</p>
-          <p className="mt-2 text-sm text-muted">Run sequential or mistakes-only with timer.</p>
-        </a>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <a href="/upload">
+            <div className="bg-white dark:bg-gray-900 rounded-3xl p-8 shadow-lg hover-lift cursor-pointer border border-gray-200 dark:border-gray-800 group">
+              <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-purple-600 to-pink-600 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform shadow-lg">
+                <FileText className="text-white" size={28} />
+              </div>
+              <h3 className="text-2xl font-bold mb-2 text-gray-900 dark:text-white">Upload Files</h3>
+              <p className="text-gray-600 dark:text-gray-400">Upload PDFs, documents, images, or JSON files to extract terms and definitions</p>
+            </div>
+          </a>
+
+          <a href="/quiz">
+            <div className="bg-gradient-to-br from-purple-600 via-pink-600 to-orange-500 rounded-3xl p-8 shadow-2xl hover-lift cursor-pointer group">
+              <div className="w-16 h-16 rounded-2xl bg-white/20 backdrop-blur-sm flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+                <TrendingUp className="text-white" size={28} />
+              </div>
+              <h3 className="text-2xl font-bold mb-2 text-white">Start Quiz</h3>
+              <p className="text-white/90">Create custom quizzes with AI or test yourself with sequential learning</p>
+            </div>
+          </a>
+        </div>
       </div>
-    </section>
+    </div>
   );
 }
