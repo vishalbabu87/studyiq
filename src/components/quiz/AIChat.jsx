@@ -27,7 +27,16 @@ export default function AIChat({ onClose, onApplyConfig }) {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ message: current, settings }),
       });
-      const data = await response.json();
+      const raw = await response.text();
+      let data;
+      try {
+        data = JSON.parse(raw);
+      } catch {
+        throw new Error(`AI API returned non-JSON (${response.status}).`);
+      }
+      if (!response.ok) {
+        throw new Error(data?.reply || data?.error || "AI API request failed.");
+      }
 
       setStatus(`Provider: ${data.provider || "local"} | fallback: ${data.fallbackUsed ? "yes" : "no"}`);
       setHistory((prev) => [...prev, { role: "assistant", content: data.reply }]);
@@ -36,11 +45,15 @@ export default function AIChat({ onClose, onApplyConfig }) {
         onApplyConfig(data.quizConfig);
         onClose();
       }
-    } catch {
-      setStatus("AI unavailable -> local fallback only");
+    } catch (error) {
+      setStatus(`AI unavailable -> local fallback only (${error.message || "request failed"})`);
       setHistory((prev) => [
         ...prev,
-        { role: "assistant", content: "Unable to reach AI provider. Use setup flow or retry." },
+        {
+          role: "assistant",
+          content:
+            "Unable to reach AI provider. Local setup still works. Check Gemini key in Settings or Vercel env.",
+        },
       ]);
     } finally {
       setLoading(false);

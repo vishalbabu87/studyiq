@@ -103,8 +103,16 @@ export async function POST(request) {
     const message = body?.message || "";
     const settings = body?.settings || {};
 
-    const geminiKey = process.env.GEMINI_API_KEY || settings.geminiKey;
-    const openaiKey = process.env.OPENAI_API_KEY || settings.openaiKey;
+    const geminiKey =
+      process.env.GEMINI_API_KEY ||
+      process.env.Gemini_API_Key ||
+      process.env.GEMINI_KEY ||
+      settings.geminiKey;
+    const openaiKey =
+      process.env.OPENAI_API_KEY ||
+      process.env.OpenAI_API_Key ||
+      process.env.OPENAI_KEY ||
+      settings.openaiKey;
     const primary = settings.primaryAI === "openai" ? "openai" : "gemini";
     const allowFallback = settings.autoFallback !== false;
 
