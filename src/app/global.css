@@ -33,6 +33,16 @@
     background-attachment: fixed;
   }
 
+  .dark .bg-app-gradient {
+    background-color: rgb(30 41 59);
+    background-image:
+      radial-gradient(circle at 18% 18%, rgba(129, 140, 248, 0.38), transparent 44%),
+      radial-gradient(circle at 84% 76%, rgba(244, 114, 182, 0.32), transparent 46%),
+      radial-gradient(circle at 48% 96%, rgba(56, 189, 248, 0.28), transparent 40%),
+      linear-gradient(165deg, rgb(30 41 59), rgb(51 65 85), rgb(88 28 135));
+    background-attachment: fixed;
+  }
+
   .glass-card {
     @apply rounded-2xl border border-slate-200/80 bg-white/90 shadow-lg backdrop-blur-sm dark:border-slate-700/70 dark:bg-slate-900/80;
   }

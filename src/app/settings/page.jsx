@@ -2,8 +2,10 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router";
 import { clearAllData } from "@/utils/db";
 import { defaultSettings, readSettings, saveSettings } from "@/utils/settings";
+import { useTheme } from "@/contexts/ThemeContext";
 
 export default function SettingsPage() {
+  const { theme, toggleTheme } = useTheme();
   const navigate = useNavigate();
   const [settings, setSettings] = useState(defaultSettings);
   const [saved, setSaved] = useState(false);
@@ -24,9 +26,9 @@ export default function SettingsPage() {
 
       <div className="glass-card p-5">
         <h2 className="mb-3 text-xl font-semibold">Appearance</h2>
-        <p className="rounded-xl bg-white/70 px-4 py-2 text-sm font-medium text-slate-700">
-          Lovable Light Theme is active.
-        </p>
+        <button type="button" onClick={toggleTheme} className="rounded-xl bg-slate-900 px-4 py-2 text-white dark:bg-slate-100 dark:text-slate-900">
+          Toggle Theme ({theme})
+        </button>
       </div>
 
       <div className="glass-card p-5">

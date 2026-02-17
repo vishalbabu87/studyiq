@@ -7,15 +7,16 @@ export function ThemeProvider({ children }) {
   const [theme, setTheme] = useState("light");
 
   useEffect(() => {
-    setTheme("light");
-    localStorage.setItem(THEME_KEY, "light");
-    document.documentElement.classList.remove("dark");
+    const saved = localStorage.getItem(THEME_KEY) || "light";
+    setTheme(saved);
+    document.documentElement.classList.toggle("dark", saved === "dark");
   }, []);
 
   const toggleTheme = () => {
-    setTheme("light");
-    localStorage.setItem(THEME_KEY, "light");
-    document.documentElement.classList.remove("dark");
+    const next = theme === "dark" ? "light" : "dark";
+    setTheme(next);
+    localStorage.setItem(THEME_KEY, next);
+    document.documentElement.classList.toggle("dark", next === "dark");
   };
 
   const value = useMemo(() => ({ theme, toggleTheme }), [theme]);
