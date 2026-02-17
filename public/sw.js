@@ -1,5 +1,5 @@
-const CACHE_NAME = "studyiq-v1";
-const APP_SHELL = ["/", "/home", "/manifest.webmanifest"];
+const CACHE_NAME = "studyiq-v2";
+const APP_SHELL = ["/", "/home", "/manifest.webmanifest", "/icons/icon-192.svg", "/icons/icon-512.svg"];
 
 self.addEventListener("install", (event) => {
   event.waitUntil(
@@ -22,15 +22,37 @@ self.addEventListener("fetch", (event) => {
   const url = new URL(request.url);
   if (url.origin !== self.location.origin) return;
 
-  event.respondWith(
-    caches.match(request).then((cached) => {
-      if (cached) return cached;
-      return fetch(request).then((response) => {
-        if (!response || response.status !== 200 || response.type !== "basic") return response;
-        const copy = response.clone();
-        caches.open(CACHE_NAME).then((cache) => cache.put(request, copy));
-        return response;
-      });
-    })
-  );
+  // Navigation: network first to avoid stale route bundles after redeploy.
+  if (request.mode === "navigate") {
+    event.respondWith(
+      fetch(request)
+        .then((response) => {
+          caches.open(CACHE_NAME).then((cache) => cache.put("/home", response.clone()));
+          return response;
+        })
+        .catch(async () => {
+          const cachedHome = await caches.match("/home");
+          return cachedHome || Response.error();
+        })
+    );
+    return;
+  }
+
+  // Static icons/manifest: cache first.
+  if (
+    url.pathname.endsWith(".png") ||
+    url.pathname.endsWith(".svg") ||
+    url.pathname.endsWith(".webmanifest")
+  ) {
+    event.respondWith(
+      caches.match(request).then((cached) => {
+        if (cached) return cached;
+        return fetch(request).then((response) => {
+          if (!response || response.status !== 200) return response;
+          caches.open(CACHE_NAME).then((cache) => cache.put(request, response.clone()));
+          return response;
+        });
+      })
+    );
+  }
 });

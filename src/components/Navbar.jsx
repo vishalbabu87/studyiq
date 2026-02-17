@@ -1,7 +1,6 @@
-import { Home, Library, Moon, Settings, Sun, Upload, BookOpenCheck, Menu, X, ListChecks } from "lucide-react";
+import { Home, Library, Settings, Upload, BookOpenCheck, Menu, X, ListChecks } from "lucide-react";
 import { useState } from "react";
 import { Link, NavLink } from "react-router";
-import { useTheme } from "@/contexts/ThemeContext";
 
 const navItems = [
   { icon: Home, label: "Home", path: "/home" },
@@ -13,7 +12,6 @@ const navItems = [
 ];
 
 export default function Navbar() {
-  const { theme, toggleTheme } = useTheme();
   const [mobileOpen, setMobileOpen] = useState(false);
 
   return (
@@ -52,14 +50,9 @@ export default function Navbar() {
           </div>
 
           <div className="flex items-center gap-2">
-            <button
-              type="button"
-              onClick={toggleTheme}
-              className="p-2 rounded-xl bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700 transition-all"
-              aria-label="Toggle theme"
-            >
-              {theme === "dark" ? <Sun size={20} /> : <Moon size={20} />}
-            </button>
+            <span className="hidden rounded-xl bg-white/70 px-3 py-2 text-xs font-semibold text-slate-600 sm:inline-block">
+              Light
+            </span>
             <button
               type="button"
               onClick={() => setMobileOpen((v) => !v)}

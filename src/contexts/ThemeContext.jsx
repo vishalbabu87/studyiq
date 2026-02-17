@@ -4,19 +4,18 @@ const THEME_KEY = "studyiq-theme";
 const ThemeContext = createContext(null);
 
 export function ThemeProvider({ children }) {
-  const [theme, setTheme] = useState("dark");
+  const [theme, setTheme] = useState("light");
 
   useEffect(() => {
-    const saved = localStorage.getItem(THEME_KEY) || "dark";
-    setTheme(saved);
-    document.documentElement.classList.toggle("dark", saved === "dark");
+    setTheme("light");
+    localStorage.setItem(THEME_KEY, "light");
+    document.documentElement.classList.remove("dark");
   }, []);
 
   const toggleTheme = () => {
-    const next = theme === "dark" ? "light" : "dark";
-    setTheme(next);
-    localStorage.setItem(THEME_KEY, next);
-    document.documentElement.classList.toggle("dark", next === "dark");
+    setTheme("light");
+    localStorage.setItem(THEME_KEY, "light");
+    document.documentElement.classList.remove("dark");
   };
 
   const value = useMemo(() => ({ theme, toggleTheme }), [theme]);
