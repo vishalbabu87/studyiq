@@ -79,7 +79,7 @@ export default function QuizPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-pink-50 to-orange-50 dark:from-gray-950 dark:via-gray-900 dark:to-gray-950">
+    <div className="bg-transparent">
       <div className="max-w-7xl mx-auto px-4 py-8 space-y-4">
         {stage === "setup" && (
           <div className="glass-card flex flex-col gap-3 p-4 sm:flex-row sm:items-center sm:justify-between">

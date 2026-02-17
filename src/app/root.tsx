@@ -41,6 +41,8 @@ import tailwindStylesHref from "../index.css?url";
 export const links = () => [
   { rel: "stylesheet", href: appStylesHref },
   { rel: "stylesheet", href: tailwindStylesHref },
+  { rel: "manifest", href: "/manifest.webmanifest" },
+  { rel: "icon", href: "/icons/icon-192.svg", type: "image/svg+xml" },
 ];
 
 if (globalThis.window && globalThis.window !== undefined) {
@@ -527,10 +529,13 @@ export function Layout({ children }: { children: ReactNode }) {
       <head>
         <meta charSet="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <meta name="theme-color" content="#6366f1" />
+        <meta name="apple-mobile-web-app-capable" content="yes" />
+        <meta name="apple-mobile-web-app-status-bar-style" content="default" />
         <Meta />
         <Links />
         <script type="module" src="/src/__create/dev-error-overlay.js"></script>
-        <link rel="icon" href="/src/__create/favicon.png" />
+        <link rel="icon" href="/icons/icon-192.svg" />
         {LoadFontsSSR ? <LoadFontsSSR /> : null}
       </head>
       <body>
@@ -546,6 +551,18 @@ export function Layout({ children }: { children: ReactNode }) {
 }
 
 export default function App() {
+  useEffect(() => {
+    if (!import.meta.env.PROD) return;
+    if (!("serviceWorker" in navigator)) return;
+
+    const register = () => {
+      navigator.serviceWorker.register("/sw.js").catch(() => undefined);
+    };
+
+    window.addEventListener("load", register, { once: true });
+    return () => window.removeEventListener("load", register);
+  }, []);
+
   return (
     <ThemeProvider>
       <div className="min-h-screen bg-app-gradient text-slate-900 dark:text-slate-100">

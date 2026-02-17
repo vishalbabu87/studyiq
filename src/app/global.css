@@ -24,13 +24,23 @@
 
 @layer utilities {
   .bg-app-gradient {
+    background-color: rgb(241 245 249);
     background-image:
-      linear-gradient(to bottom right, rgb(249 250 251), rgb(243 232 255), rgb(253 242 248));
+      radial-gradient(circle at 22% 20%, rgba(99, 102, 241, 0.28), transparent 42%),
+      radial-gradient(circle at 78% 72%, rgba(236, 72, 153, 0.25), transparent 45%),
+      radial-gradient(circle at 50% 96%, rgba(59, 130, 246, 0.22), transparent 40%),
+      linear-gradient(170deg, rgb(241 245 249), rgb(226 232 240), rgb(252 231 243));
+    background-attachment: fixed;
   }
 
   .dark .bg-app-gradient {
+    background-color: rgb(15 23 42);
     background-image:
-      linear-gradient(to bottom right, rgb(3 7 18), rgb(17 24 39), rgb(3 7 18));
+      radial-gradient(circle at 24% 16%, rgba(96, 165, 250, 0.3), transparent 42%),
+      radial-gradient(circle at 76% 78%, rgba(232, 121, 249, 0.27), transparent 45%),
+      radial-gradient(circle at 50% 100%, rgba(59, 130, 246, 0.24), transparent 42%),
+      linear-gradient(165deg, rgb(15 23 42), rgb(30 41 59), rgb(49 46 129));
+    background-attachment: fixed;
   }
 
   .glass-card {
