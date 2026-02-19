@@ -56,19 +56,19 @@ export default function SettingsPage() {
   ];
 
   return (
-    <section className="space-y-4">
+    <section className="space-y-3 md:space-y-4">
       {/* Header */}
-      <div className="bg-white dark:bg-gray-900 rounded-3xl p-6 shadow-lg hover-lift border border-gray-200 dark:border-gray-800">
-        <h1 className="text-4xl font-bold text-gray-900 dark:text-white">Settings</h1>
+      <div className="bg-white dark:bg-gray-900 rounded-2xl md:rounded-3xl p-4 md:p-6 shadow-lg hover-lift border border-gray-200 dark:border-gray-800">
+        <h1 className="text-2xl md:text-4xl font-bold text-gray-900 dark:text-white">Settings</h1>
       </div>
 
       {/* Appearance */}
-      <div className="glass-card p-5">
-        <h2 className="mb-4 text-xl font-semibold text-gray-900 dark:text-white">Appearance</h2>
-        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">
+      <div className="glass-card p-3 md:p-5">
+        <h2 className="mb-3 md:mb-4 text-lg md:text-xl font-semibold text-gray-900 dark:text-white">Appearance</h2>
+        <label className="block text-xs md:text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 md:mb-3">
           Theme
         </label>
-        <div className="grid grid-cols-3 gap-3">
+        <div className="grid grid-cols-3 gap-2 md:gap-3">
           {themeOptions.map(({ value, label, icon: Icon, activeClass, hoverClass }) => (
             <button
               key={value}
@@ -77,13 +77,13 @@ export default function SettingsPage() {
                 setTheme(value);
                 setSettings((prev) => ({ ...prev, theme: value }));
               }}
-              className={`flex flex-col items-center gap-1.5 p-3 rounded-xl border-2 font-medium text-sm transition-all duration-200 ${
+              className={`flex flex-col items-center gap-1 p-2 md:p-3 rounded-lg md:rounded-xl border-2 font-medium text-xs md:text-sm transition-all duration-200 ${
                 settings.theme === value
                   ? `${activeClass} theme-btn-active`
                   : `border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-200 ${hoverClass}`
               }`}
             >
-              <Icon size={22} />
+              <Icon size={18} md:size={22} />
               <span>{label}</span>
             </button>
           ))}
@@ -91,33 +91,33 @@ export default function SettingsPage() {
       </div>
 
       {/* AI Settings */}
-      <div className="glass-card p-5">
-        <h2 className="mb-3 text-xl font-semibold text-gray-900 dark:text-white">AI Settings</h2>
-        <p className="mb-2 text-xs text-slate-500 dark:text-slate-400">For production use environment variables on deployment.</p>
-        <label className="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">Gemini API Key</label>
+      <div className="glass-card p-3 md:p-5">
+        <h2 className="mb-2 md:mb-3 text-lg md:text-xl font-semibold text-gray-900 dark:text-white">AI Settings</h2>
+        <p className="mb-2 text-[10px] md:text-xs text-slate-500 dark:text-slate-400">For production use environment variables on deployment.</p>
+        <label className="mb-1 md:mb-2 block text-xs md:text-sm font-medium text-gray-700 dark:text-gray-300">Gemini API Key</label>
         <input
           type="password"
           value={settings.geminiKey}
           onChange={(e) => setSettings((prev) => ({ ...prev, geminiKey: e.target.value }))}
-          className="mb-3 w-full rounded-xl border border-slate-300 bg-white px-4 py-3 dark:border-slate-700 dark:bg-slate-900 dark:text-white"
+          className="mb-2 md:mb-3 w-full rounded-lg md:rounded-xl border border-slate-300 bg-white px-3 md:px-4 py-2 md:py-3 text-sm dark:border-slate-700 dark:bg-slate-900 dark:text-white"
         />
-        <label className="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">OpenAI API Key</label>
+        <label className="mb-1 md:mb-2 block text-xs md:text-sm font-medium text-gray-700 dark:text-gray-300">OpenAI API Key</label>
         <input
           type="password"
           value={settings.openaiKey}
           onChange={(e) => setSettings((prev) => ({ ...prev, openaiKey: e.target.value }))}
-          className="mb-3 w-full rounded-xl border border-slate-300 bg-white px-4 py-3 dark:border-slate-700 dark:bg-slate-900 dark:text-white"
+          className="mb-2 md:mb-3 w-full rounded-lg md:rounded-xl border border-slate-300 bg-white px-3 md:px-4 py-2 md:py-3 text-sm dark:border-slate-700 dark:bg-slate-900 dark:text-white"
         />
-        <label className="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">Primary AI</label>
+        <label className="mb-1 md:mb-2 block text-xs md:text-sm font-medium text-gray-700 dark:text-gray-300">Primary AI</label>
         <select
           value={settings.primaryAI}
           onChange={(e) => setSettings((prev) => ({ ...prev, primaryAI: e.target.value }))}
-          className="mb-3 w-full rounded-xl border border-slate-300 bg-white px-4 py-3 dark:border-slate-700 dark:bg-slate-900 dark:text-white"
+          className="mb-2 md:mb-3 w-full rounded-lg md:rounded-xl border border-slate-300 bg-white px-3 md:px-4 py-2 md:py-3 text-sm dark:border-slate-700 dark:bg-slate-900 dark:text-white"
         >
           <option value="gemini">Gemini</option>
           <option value="openai">OpenAI</option>
         </select>
-        <label className="mb-4 flex items-center gap-2 text-sm text-gray-700 dark:text-gray-300">
+        <label className="mb-3 md:mb-4 flex items-center gap-2 text-xs md:text-sm text-gray-700 dark:text-gray-300">
           <input
             type="checkbox"
             checked={settings.autoFallback}
@@ -128,16 +128,16 @@ export default function SettingsPage() {
         <button
           type="button"
           onClick={save}
-          className="rounded-xl bg-emerald-600 px-4 py-2 text-white font-medium hover:bg-emerald-700 transition-colors"
+          className="rounded-lg md:rounded-xl bg-emerald-600 px-3 md:px-4 py-2 text-sm md:text-base text-white font-medium hover:bg-emerald-700 transition-colors"
         >
           {saved ? "✓ Saved" : "Save"}
         </button>
       </div>
 
       {/* Offline AI (WebLLM) */}
-      <div className="glass-card p-5">
-        <h2 className="mb-3 text-xl font-semibold text-gray-900 dark:text-white flex items-center gap-2">
-          <Cpu size={20} className="text-purple-500" />
+      <div className="glass-card p-3 md:p-5">
+        <h2 className="mb-2 md:mb-3 text-lg md:text-xl font-semibold text-gray-900 dark:text-white flex items-center gap-2">
+          <Cpu size={18} md:size={20} className="text-purple-500" />
           Offline AI
         </h2>
         
@@ -223,9 +223,9 @@ export default function SettingsPage() {
       </div>
 
       {/* Data */}
-      <div className="glass-card p-5">
-        <h2 className="mb-3 text-xl font-semibold text-gray-900 dark:text-white">Data</h2>
-        <p className="mb-3 text-sm text-gray-600 dark:text-gray-400">This will permanently delete all your files, entries, and quiz history.</p>
+      <div className="glass-card p-3 md:p-5">
+        <h2 className="mb-2 md:mb-3 text-lg md:text-xl font-semibold text-gray-900 dark:text-white">Data</h2>
+        <p className="mb-2 md:mb-3 text-xs md:text-sm text-gray-600 dark:text-gray-400">This will permanently delete all your files, entries, and quiz history.</p>
         <button
           type="button"
           onClick={async () => {
@@ -233,7 +233,7 @@ export default function SettingsPage() {
             await clearAllData();
             navigate("/home", { replace: true });
           }}
-          className="rounded-xl bg-rose-600 px-4 py-2 text-white font-medium hover:bg-rose-700 transition-colors"
+          className="rounded-lg md:rounded-xl bg-rose-600 px-3 md:px-4 py-2 text-sm md:text-base text-white font-medium hover:bg-rose-700 transition-colors"
         >
           Clear All Data
         </button>

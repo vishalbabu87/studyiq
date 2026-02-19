@@ -112,11 +112,13 @@ export default function LibraryPage() {
     if (!isSelectionMode) return null;
 
     return (
-        <div className="selection-action-bar fixed bottom-4 right-4 z-[100] p-3 rounded-2xl shadow-2xl flex items-center gap-2">
-            <span className="font-semibold text-sm px-2">{selectedItems.size} selected</span>
-            <button onClick={handleSelectAll} className="flex items-center gap-2 px-3 py-2 rounded-lg bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors text-gray-800 dark:text-gray-200"><CheckSquare size={18}/> All</button>
-            <button onClick={handleDelete} className="flex items-center gap-2 px-3 py-2 rounded-lg bg-red-500 text-white hover:bg-red-600 transition-colors font-medium"><Trash2 size={18} /> Delete</button>
-            <button onClick={cancelSelection} className="flex items-center gap-2 px-3 py-2 rounded-lg bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors text-gray-800 dark:text-gray-200"><X size={18}/></button>
+        <div className="selection-action-bar fixed bottom-4 left-4 right-4 md:left-auto md:right-4 z-[100] p-2 md:p-3 rounded-xl md:rounded-2xl shadow-2xl flex flex-wrap items-center justify-between md:justify-start gap-2 max-w-full">
+            <span className="font-semibold text-xs md:text-sm px-1 md:px-2 whitespace-nowrap">{selectedItems.size} selected</span>
+            <div className="flex items-center gap-1 md:gap-2">
+              <button onClick={handleSelectAll} className="flex items-center gap-1 md:gap-2 px-2 md:px-3 py-1.5 md:py-2 rounded-lg bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors text-gray-800 dark:text-gray-200 text-xs md:text-sm"><CheckSquare size={14} md:size={18}/> All</button>
+              <button onClick={handleDelete} className="flex items-center gap-1 md:gap-2 px-2 md:px-3 py-1.5 md:py-2 rounded-lg bg-red-500 text-white hover:bg-red-600 transition-colors font-medium text-xs md:text-sm"><Trash2 size={14} md:size={18} /> <span className="hidden md:inline">Delete</span></button>
+              <button onClick={cancelSelection} className="flex items-center gap-1 md:gap-2 px-2 md:px-3 py-1.5 md:py-2 rounded-lg bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors text-gray-800 dark:text-gray-200"><X size={14} md:size={18}/></button>
+            </div>
         </div>
     );
   };

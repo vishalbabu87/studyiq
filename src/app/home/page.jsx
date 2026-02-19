@@ -43,31 +43,32 @@ export default function HomePage() {
 
   return (
     <div className="transition-colors duration-300">
-      <div className="max-w-7xl mx-auto px-4 py-8">
-        <div className="text-center mb-12 hero-text-panel py-8 px-6 rounded-3xl">
-          <h1 className="text-4xl md:text-5xl font-bold mb-4">
+      <div className="max-w-7xl mx-auto px-3 md:px-4 py-4 md:py-8">
+        <div className="text-center mb-6 md:mb-12 hero-text-panel py-6 md:py-8 px-4 md:px-6 rounded-2xl md:rounded-3xl">
+          <h1 className="text-2xl md:text-5xl font-bold mb-2 md:mb-4">
             Welcome to{" "}
             <span className="bg-gradient-to-r from-purple-600 via-pink-600 to-orange-500 bg-clip-text text-transparent dark:text-white dark:bg-none">
               StudyIQ
             </span>
           </h1>
-          <p className="text-gray-600 dark:text-gray-400 text-lg max-w-2xl mx-auto">
-            Your intelligent learning companion powered by AI and smart quiz generation
+          <p className="text-gray-600 dark:text-gray-400 text-sm md:text-lg max-w-2xl mx-auto">
+            Your intelligent learning companion powered by AI
           </p>
         </div>
 
-        <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-6 mb-6 md:mb-12">
+        {/* Stats Cards - Equal size grid */}
+        <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-2 md:gap-4 mb-4 md:mb-8">
           {statCards.map((card) => {
             const Icon = card.icon;
             return (
-              <div key={card.label} className="bg-white dark:bg-gray-900 rounded-2xl md:rounded-3xl p-3 md:p-6 shadow-lg hover-lift border border-gray-200 dark:border-gray-800">
-                <div className="flex items-center gap-2 md:gap-4">
-                  <div className={`w-10 h-10 md:w-14 md:h-14 rounded-xl md:rounded-2xl bg-gradient-to-br ${card.color} flex items-center justify-center shadow-lg`}>
-                    <Icon className="text-white" size={18} md:size={24} />
+              <div key={card.label} className="bg-white dark:bg-gray-900 rounded-xl md:rounded-2xl p-3 md:p-4 shadow-lg border border-gray-200 dark:border-gray-800 flex flex-col justify-between min-h-[80px] md:min-h-[100px]">
+                <div className="flex items-center gap-2 md:gap-3">
+                  <div className={`w-8 h-8 md:w-12 md:h-12 rounded-lg md:rounded-xl bg-gradient-to-br ${card.color} flex items-center justify-center shadow-lg flex-shrink-0`}>
+                    <Icon className="text-white" size={14} md:size={20} />
                   </div>
-                  <div>
-                    <div className="text-xl md:text-3xl font-bold text-gray-900 dark:text-white">{card.value}</div>
-                    <div className="text-xs md:text-sm text-gray-600 dark:text-gray-400">{card.label}</div>
+                  <div className="min-w-0">
+                    <div className="text-lg md:text-2xl font-bold text-gray-900 dark:text-white truncate">{card.value}</div>
+                    <div className="text-[10px] md:text-xs text-gray-600 dark:text-gray-400 truncate">{card.label}</div>
                   </div>
                 </div>
               </div>
@@ -75,24 +76,25 @@ export default function HomePage() {
           })}
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 md:gap-6">
+        {/* Action Cards - Equal size grid */}
+        <div className="grid grid-cols-2 gap-2 md:gap-4">
           <Link to="/upload">
-            <div className="bg-white dark:bg-gray-900 rounded-2xl md:rounded-3xl p-5 md:p-8 shadow-lg hover-lift cursor-pointer border border-gray-200 dark:border-gray-800 group">
-              <div className="w-12 h-12 md:w-16 md:h-16 rounded-xl md:rounded-2xl bg-gradient-to-br from-purple-600 to-pink-600 flex items-center justify-center mb-3 md:mb-4 group-hover:scale-110 transition-transform shadow-lg">
-                <FileText className="text-white" size={22} md:size={28} />
+            <div className="bg-white dark:bg-gray-900 rounded-xl md:rounded-2xl p-4 md:p-6 shadow-lg hover-lift cursor-pointer border border-gray-200 dark:border-gray-800 group h-full">
+              <div className="w-10 h-10 md:w-14 md:h-14 rounded-xl bg-gradient-to-br from-purple-600 to-pink-600 flex items-center justify-center mb-3 group-hover:scale-110 transition-transform shadow-lg">
+                <FileText className="text-white" size={18} md:size={24} />
               </div>
-              <h3 className="text-lg md:text-2xl font-bold mb-1 md:mb-2 text-gray-900 dark:text-white">Upload Files</h3>
-              <p className="text-sm text-gray-600 dark:text-gray-400">Upload PDFs, documents, images, or JSON files to extract terms and definitions</p>
+              <h3 className="text-base md:text-xl font-bold mb-1 text-gray-900 dark:text-white">Upload</h3>
+              <p className="text-xs md:text-sm text-gray-600 dark:text-gray-400 line-clamp-2">Upload PDFs, documents, images, or JSON files</p>
             </div>
           </Link>
 
           <Link to="/quiz">
-            <div className="bg-gradient-to-br from-purple-600 via-pink-600 to-orange-500 rounded-2xl md:rounded-3xl p-5 md:p-8 shadow-2xl hover-lift cursor-pointer group">
-              <div className="w-12 h-12 md:w-16 md:h-16 rounded-xl md:rounded-2xl bg-white/20 backdrop-blur-sm flex items-center justify-center mb-3 md:mb-4 group-hover:scale-110 transition-transform">
-                <TrendingUp className="text-white" size={22} md:size={28} />
+            <div className="bg-gradient-to-br from-purple-600 via-pink-600 to-orange-500 rounded-xl md:rounded-2xl p-4 md:p-6 shadow-xl hover-lift cursor-pointer group h-full">
+              <div className="w-10 h-10 md:w-14 md:h-14 rounded-xl bg-white/20 backdrop-blur-sm flex items-center justify-center mb-3 group-hover:scale-110 transition-transform">
+                <TrendingUp className="text-white" size={18} md:size={24} />
               </div>
-              <h3 className="text-lg md:text-2xl font-bold mb-1 md:mb-2 text-white">Start Quiz</h3>
-              <p className="text-white/90 text-sm">Create custom quizzes with AI or test yourself with sequential learning</p>
+              <h3 className="text-base md:text-xl font-bold mb-1 text-white">Start Quiz</h3>
+              <p className="text-white/80 text-xs md:text-sm line-clamp-2">Create custom quizzes with AI or test yourself</p>
             </div>
           </Link>
         </div>
