@@ -9,11 +9,6 @@ export default [
   route("tracker", "./tracker/page.jsx"),
   route("upload", "./upload/page.jsx"),
   route("settings", "./settings/page.jsx"),
-  // API resource routes — must be in manifest for useFetcher to find them
-  route("api/quiz/generate", "./routes/api.quiz.generate.jsx"),
-  route("api/ai/quiz", "./routes/api.ai.quiz.jsx"),
-  route("api/extract", "./routes/api.extract.jsx"),
-  route("api/parse", "./routes/api.parse.jsx"),
-  // Note: removed wildcard route to prevent circular reference on Vercel
-  // 404 is handled by React Router automatically
+  // API routes are handled by src/app/api/*/route.js files
+  // Removed from here to avoid SSR issues
 ];
