@@ -27,7 +27,7 @@
   .bg-app-gradient {
     position: relative;
     isolation: isolate;
-    overflow: visible;
+    overflow: hidden;
     min-height: 100vh;
     background-color: rgb(241 245 255);
     background-image:
