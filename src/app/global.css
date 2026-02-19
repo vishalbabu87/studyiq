@@ -23,7 +23,7 @@
 }
 
 @layer utilities {
-  /* Main gradient background */
+  /* Main gradient background - simplified for mobile performance */
   .bg-app-gradient {
     position: relative;
     isolation: isolate;
@@ -31,20 +31,20 @@
     min-height: 100vh;
     background-color: rgb(241 245 255);
     background-image:
-      radial-gradient(circle at 20% 16%, rgba(96, 165, 250, 0.34), transparent 44%),
-      radial-gradient(circle at 84% 76%, rgba(244, 114, 182, 0.34), transparent 46%),
-      radial-gradient(circle at 50% 92%, rgba(192, 132, 252, 0.3), transparent 42%),
+      radial-gradient(circle at 20% 16%, rgba(96, 165, 250, 0.2), transparent 44%),
+      radial-gradient(circle at 84% 76%, rgba(244, 114, 182, 0.2), transparent 46%),
       linear-gradient(168deg, rgb(239 246 255), rgb(224 231 255), rgb(254 242 248), rgb(253 242 248));
     background-attachment: fixed;
   }
 
+  /* Disable animated background on mobile and when reduced motion preferred */
   .bg-app-gradient::before {
     content: "";
     position: absolute;
     inset: -16%;
     z-index: -1;
     pointer-events: none;
-    opacity: 0.8;
+    opacity: 0;
     background:
       radial-gradient(circle at 18% 20%, rgba(255, 255, 255, 0.7), transparent 42%),
       radial-gradient(circle at 74% 24%, rgba(96, 165, 250, 0.45), transparent 43%),
@@ -54,6 +54,13 @@
     filter: blur(18px) saturate(108%);
     animation: dreamyFloat 30s ease-in-out infinite alternate;
     transform-origin: center;
+  }
+
+  @media (max-width: 768px) {
+    .bg-app-gradient::before {
+      opacity: 0.3;
+      animation: none;
+    }
   }
 
   .bg-app-gradient > * {
@@ -436,6 +443,21 @@ html.theme-lovable .selection-action-bar {
   .bg-app-gradient::before,
   html.theme-lovable body {
     animation: none;
+  }
+}
+
+/* Disable heavy animations on mobile for better performance */
+@media (max-width: 768px) {
+  html.theme-lovable body {
+    animation: none;
+    background-position: 0% 0%;
+  }
+  
+  html.theme-lovable .glass-card,
+  html.theme-lovable nav,
+  html.theme-lovable .sticky {
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
   }
 }
 
