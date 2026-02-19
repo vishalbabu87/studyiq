@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { Upload, CheckCircle, AlertCircle, Loader, Plus } from "lucide-react";
 import { addCategory, addEntry, addFile, getAllCategories, initDB } from "@/utils/db";
+import { apiUrl } from "@/utils/api";
 
 const acceptedTypes = ".pdf,.doc,.docx,.xls,.xlsx,.csv,.txt,.jpg,.jpeg,.png,.json";
 
@@ -130,26 +131,81 @@ export default function UploadPage() {
       setProgress(30);
 
       let extractedEntries = [];
-      let usedLocalFallback = false;
+      let usedAI = false;
+      
+      const fileName = file.name.toLowerCase();
+      const isBinary = /\.(pdf|doc|docx|xlsx|xls)$/i.test(fileName);
 
-      try {
-        const response = await fetch("/api/extract", { method: "POST", body });
-        const raw = await response.text();
-        let result;
+      // For binary files (PDF, DOC, DOCX, XLSX), use server-side parsing
+      if (isBinary) {
+        setLogs((prev) => [...prev, `📤 Uploading ${fileName.split('.').pop().toUpperCase()} file for AI extraction...`]);
+        
         try {
-          result = JSON.parse(raw);
-        } catch {
-          const shortBody = raw.slice(0, 140).replace(/\s+/g, " ").trim();
-          throw new Error(
-            `Upload API returned non-JSON response (${response.status}). ${shortBody || "Route may be missing on deployment."}`
-          );
+          const formData = new FormData();
+          formData.append("file", file);
+          formData.append("settings", JSON.stringify({}));
+          
+          const response = await fetch(apiUrl("/api/parse"), {
+            method: "POST",
+            body: formData
+          });
+          
+          const result = await response.json();
+          
+          if (result.ok && result.entries && result.entries.length > 0) {
+            extractedEntries = result.entries;
+            usedAI = result.usedAI;
+            setLogs((prev) => [...prev, 
+              result.usedAI 
+                ? `🤖 AI extracted ${result.entries.length} terms from ${result.textLength || 'unknown'} characters`
+                : `📝 Extracted ${result.entries.length} terms`
+            ]);
+          } else {
+            throw new Error(result.error || "No terms found");
+          }
+        } catch (parseError) {
+          // Fallback to local extraction
+          setLogs((prev) => [...prev, `⚠️ Server parse failed: ${parseError.message}, trying local...`]);
+          extractedEntries = await extractEntriesLocally(file);
+          usedAI = false;
         }
-        if (!response.ok) throw new Error(result.error || "Upload failed");
-        extractedEntries = result.entries || [];
-      } catch (apiError) {
-        usedLocalFallback = true;
-        setLogs((prev) => [...prev, `API failed, using local extraction fallback: ${apiError.message || "unknown error"}`]);
-        extractedEntries = await extractEntriesLocally(file);
+      } else {
+        // For text files (TXT, CSV, JSON), use local extraction first
+        const localEntries = await extractEntriesLocally(file);
+        
+        if (localEntries.length >= 3) {
+          extractedEntries = localEntries;
+          setLogs((prev) => [...prev, `Local extraction found ${localEntries.length} terms`]);
+        } else {
+          // Try AI for noisy text
+          setLogs((prev) => [...prev, "Local extraction weak, trying AI..."]);
+          try {
+            const fileText = await file.text();
+            const response = await fetch(apiUrl("/api/ai/quiz"), {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                message: fileText.slice(0, 8000),
+                settings: {},
+                mode: "extract-terms"
+              })
+            });
+            
+            const result = await response.json();
+            
+            if (result.entries && result.entries.length > 0) {
+              extractedEntries = result.entries;
+              usedAI = true;
+              setLogs((prev) => [...prev, `🤖 AI extracted ${result.entries.length} terms`]);
+            } else {
+              extractedEntries = localEntries;
+              setLogs((prev) => [...prev, "AI found no terms, using local"]);
+            }
+          } catch (apiError) {
+            extractedEntries = localEntries;
+            setLogs((prev) => [...prev, `AI failed: ${apiError.message}, using local`]);
+          }
+        }
       }
 
       const cleanEntries = uniqueByTermMeaning(extractedEntries);
@@ -159,7 +215,7 @@ export default function UploadPage() {
 
       setLogs((prev) => [
         ...prev,
-        `${usedLocalFallback ? "Locally extracted" : "Extracted"} ${cleanEntries.length} terms`,
+        `${usedAI ? "🤖 AI extracted" : "📝 Extracted"} ${cleanEntries.length} terms`,
       ]);
       setProgress(60);
 
@@ -200,13 +256,55 @@ export default function UploadPage() {
   };
 
   return (
-    <div className="bg-transparent">
-      <div className="max-w-4xl mx-auto px-4 py-8">
-        <div className="text-center mb-8">
+    <div className="max-w-4xl mx-auto px-4 py-8">
+        <div className="bg-white dark:bg-gray-900 rounded-3xl p-6 shadow-lg hover-lift border border-gray-200 dark:border-gray-800 text-center mb-8">
           <h1 className="text-3xl md:text-4xl font-bold mb-2 bg-gradient-to-r from-purple-600 via-pink-600 to-orange-500 bg-clip-text text-transparent">
             Upload Learning Materials
           </h1>
           <p className="text-gray-600 dark:text-gray-400">Supported: PDF, DOC, DOCX, XLSX, CSV, TXT, JPG, PNG, JSON</p>
+          <p className="text-xs text-purple-600 dark:text-purple-400 mt-1 font-medium">✨ AI-powered: automatically extracts terms from noisy text</p>
+        </div>
+
+        {/* JSON Format Guide */}
+        <div className="bg-white dark:bg-gray-900 rounded-3xl p-5 shadow-lg mb-6 border border-gray-200 dark:border-gray-800">
+          <details>
+            <summary className="cursor-pointer font-semibold text-sm text-gray-700 dark:text-gray-300 select-none flex items-center gap-2">
+              📋 Accepted JSON formats (click to expand)
+            </summary>
+            <div className="mt-3 space-y-3">
+              <p className="text-xs text-gray-500 dark:text-gray-400">
+                Best format: a simple JSON array. Use any of these field names — the app auto-detects them.
+              </p>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                {[
+                  {
+                    label: "Word + Meaning",
+                    code: `[\n  {"word":"break a leg",\n   "meaning":"wish good luck"},\n  {"word":"hit the sack",\n   "meaning":"go to sleep"}\n]`,
+                    note: "Most universal format"
+                  },
+                  {
+                    label: "Term + Meaning",
+                    code: `[\n  {"term":"ubiquitous",\n   "meaning":"present everywhere"},\n  {"term":"ephemeral",\n   "meaning":"short-lived"}\n]`,
+                    note: "Works for vocabulary"
+                  },
+                  {
+                    label: "Word + Definition",
+                    code: `[\n  {"word":"photosynthesis",\n   "definition":"light→food\nprocess"},\n  {"word":"osmosis",\n   "definition":"water through\nmembrane"}\n]`,
+                    note: "Also works"
+                  },
+                ].map(({ label, code, note }) => (
+                  <div key={label} className="bg-gray-50 dark:bg-gray-800 rounded-xl p-3">
+                    <div className="text-xs font-bold text-purple-600 dark:text-purple-400 mb-1">{label}</div>
+                    <pre className="text-xs text-gray-700 dark:text-gray-300 overflow-x-auto whitespace-pre-wrap font-mono">{code}</pre>
+                    <div className="text-xs text-gray-500 mt-1">✓ {note}</div>
+                  </div>
+                ))}
+              </div>
+              <div className="text-xs text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-900/20 rounded-lg p-2">
+                💡 <strong>Tip:</strong> Even noisy TXT/PDF files work — the AI engine will automatically extract only the term-meaning pairs and ignore page numbers, headers, and example sentences.
+              </div>
+            </div>
+          </details>
         </div>
 
         <div className="bg-white dark:bg-gray-900 rounded-3xl p-6 shadow-lg mb-6 border border-gray-200 dark:border-gray-800">
@@ -326,7 +424,6 @@ export default function UploadPage() {
             </div>
           )}
         </div>
-      </div>
     </div>
   );
 }

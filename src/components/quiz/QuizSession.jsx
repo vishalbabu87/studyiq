@@ -19,6 +19,33 @@ export default function QuizSession({ config, onComplete }) {
   );
 
   useEffect(() => {
+    // AI-generated mode: use questions directly from config
+    if (config.mode === "ai-generated" && Array.isArray(config.questions)) {
+      const formatted = config.questions.map((q, i) => ({
+        id: i,
+        prompt: q.question,
+        direction: "ai-generated",
+        explanation: q.explanation || "",
+        entry: {
+          id: i,
+          term: q.question,
+          meaning: q.answer,
+          wrongCount: 0,
+          attemptCount: 0,
+          category: "AI Generated",
+        },
+        options: (q.options || []).map((opt) => ({
+          text: opt,
+          isCorrect: opt === q.answer,
+        })),
+      }));
+      setQuestions(formatted);
+      setTotalEntries(formatted.length);
+      setUsedRange({ start: 1, end: formatted.length });
+      return;
+    }
+
+    // Normal mode: load from IndexedDB
     let active = true;
     getEntriesByFile(config.file).then((entries) => {
       if (!active) return;
@@ -34,10 +61,7 @@ export default function QuizSession({ config, onComplete }) {
       setQuestions(session.questions);
       setUsedRange(session.usedRange);
     });
-
-    return () => {
-      active = false;
-    };
+    return () => { active = false; };
   }, [config]);
 
   useEffect(() => {
@@ -73,12 +97,15 @@ export default function QuizSession({ config, onComplete }) {
       setWrongEntries((prev) => [...prev, question.entry]);
     }
 
-    await updateEntry({
-      ...question.entry,
-      attemptCount: (question.entry.attemptCount || 0) + 1,
-      wrongCount: isCorrect ? question.entry.wrongCount || 0 : (question.entry.wrongCount || 0) + 1,
-      lastAttempted: Date.now(),
-    });
+    // Only persist to DB for real entries (not AI-generated)
+    if (config.mode !== "ai-generated") {
+      await updateEntry({
+        ...question.entry,
+        attemptCount: (question.entry.attemptCount || 0) + 1,
+        wrongCount: isCorrect ? question.entry.wrongCount || 0 : (question.entry.wrongCount || 0) + 1,
+        lastAttempted: Date.now(),
+      });
+    }
 
     setTimeout(() => {
       if (current < questions.length - 1) {
@@ -111,7 +138,7 @@ export default function QuizSession({ config, onComplete }) {
     .padStart(2, "0")}:${(timeLeft % 60).toString().padStart(2, "0")}`;
 
   return (
-    <section className="glass-card p-6 sm:p-8">
+    <section className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-6 sm:p-8">
       <div className="mb-6 flex flex-wrap items-center justify-between gap-2 text-sm">
         <div>
           Q {current + 1}/{questions.length} | score {correctCount}/{current + (showResult ? 1 : 0)}
@@ -130,7 +157,11 @@ export default function QuizSession({ config, onComplete }) {
 
       <h2 className="mb-2 text-2xl font-bold">{currentQuestion.prompt}</h2>
       <p className="mb-5 text-sm text-slate-600 dark:text-slate-300">
-        {currentQuestion.direction === "term_to_meaning" ? "Choose correct meaning" : "Choose correct term"}
+        {currentQuestion.direction === "ai-generated"
+          ? "Choose the correct answer"
+          : currentQuestion.direction === "term_to_meaning"
+          ? "Choose correct meaning"
+          : "Choose correct term"}
       </p>
 
       <div className="space-y-3">
@@ -153,6 +184,12 @@ export default function QuizSession({ config, onComplete }) {
           );
         })}
       </div>
+
+      {showResult && currentQuestion.explanation && (
+        <div className="mt-4 rounded-xl bg-sky-50 dark:bg-sky-900/20 border border-sky-200 dark:border-sky-800 p-3 text-sm text-sky-800 dark:text-sky-200">
+          💡 <span className="font-medium">Explanation:</span> {currentQuestion.explanation}
+        </div>
+      )}
     </section>
   );
 }

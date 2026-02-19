@@ -2,7 +2,7 @@ export default function QuizResults({ results, onRetestWrong, onContinueSequence
   const accuracy = results.total ? Math.round((results.correct / results.total) * 100) : 0;
 
   return (
-    <section className="glass-card p-6 sm:p-8">
+    <section className="quiz-card p-6 sm:p-8">
       <h2 className="mb-5 text-3xl font-bold">Quiz Complete</h2>
       <div className="mb-6 grid grid-cols-1 gap-3 sm:grid-cols-3">
         <div className="rounded-2xl bg-emerald-500/15 p-4">

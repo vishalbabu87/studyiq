@@ -32,12 +32,13 @@ export function Layout({ children }: { children: ReactNode }) {
         <meta charSet="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <meta name="theme-color" content="#6366f1" />
+        <meta name="mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-status-bar-style" content="default" />
         <Meta />
         <Links />
       </head>
-      <body>
+      <body className="antialiased selection:bg-blue-500/30 transition-colors duration-300">
         {children}
         <ScrollRestoration />
         <Scripts />
@@ -49,7 +50,7 @@ export function Layout({ children }: { children: ReactNode }) {
 export default function App() {
   return (
     <ThemeProvider>
-      <div className="min-h-screen bg-app-gradient text-slate-900 dark:text-slate-100">
+      <div className="bg-app-gradient min-h-screen transition-colors duration-300">
         <Navbar />
         <main className="mx-auto max-w-7xl px-4 py-8">
           <Outlet />

@@ -42,12 +42,12 @@ export default function HomePage() {
   ];
 
   return (
-    <div className="bg-transparent">
+    <div className="transition-colors duration-300">
       <div className="max-w-7xl mx-auto px-4 py-8">
-        <div className="text-center mb-12">
+        <div className="text-center mb-12 hero-text-panel py-8 px-6 rounded-3xl">
           <h1 className="text-4xl md:text-5xl font-bold mb-4">
             Welcome to{" "}
-            <span className="bg-gradient-to-r from-purple-600 via-pink-600 to-orange-500 bg-clip-text text-transparent">
+            <span className="bg-gradient-to-r from-purple-600 via-pink-600 to-orange-500 bg-clip-text text-transparent dark:text-white dark:bg-none">
               StudyIQ
             </span>
           </h1>

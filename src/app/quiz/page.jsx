@@ -79,18 +79,19 @@ export default function QuizPage() {
   };
 
   return (
-    <div className="bg-transparent">
-      <div className="max-w-7xl mx-auto px-4 py-8 space-y-4">
+    <div className="max-w-7xl mx-auto px-4 py-8 space-y-4">
         {stage === "setup" && (
-          <div className="glass-card flex flex-col gap-3 p-4 sm:flex-row sm:items-center sm:justify-between">
-            <div>
-              <p className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">AI Quiz Creator</p>
-              <h2 className="text-xl font-bold">Describe your quiz and auto-fill setup</h2>
-              <p className="text-sm text-slate-600 dark:text-slate-300">Example: Generate 30 hard MCQs from range 1-50 in random mode.</p>
+          <div className="bg-white dark:bg-gray-900 rounded-3xl p-6 shadow-lg hover-lift border border-gray-200 dark:border-gray-800">
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+              <div>
+                <p className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">AI Quiz Creator</p>
+                <h2 className="text-xl font-bold text-gray-900 dark:text-white">Describe your quiz and auto-fill setup</h2>
+                <p className="text-sm text-gray-600 dark:text-gray-400">Example: Generate 30 hard MCQs from range 1-50 in random mode.</p>
+              </div>
+              <button type="button" onClick={() => setShowAI(true)} className="bg-gradient-to-r from-purple-600 to-pink-600 rounded-xl px-5 py-3 font-semibold text-white shadow-lg hover:scale-105 transition-transform">
+                Create with AI
+              </button>
             </div>
-            <button type="button" onClick={() => setShowAI(true)} className="pink-blue-gradient rounded-xl px-5 py-3 font-semibold text-white shadow-lg">
-              Create with AI
-            </button>
           </div>
         )}
 
@@ -121,6 +122,23 @@ export default function QuizPage() {
           <AIChat
             onClose={() => setShowAI(false)}
             onApplyConfig={(aiConfig) => {
+              // AI-generated quiz: start immediately with AI questions
+              if (aiConfig.mode === "ai-generated" && Array.isArray(aiConfig.questions)) {
+                startQuiz({
+                  mode: "ai-generated",
+                  questions: aiConfig.questions,
+                  questionCount: aiConfig.questions.length,
+                  category: "AI Generated",
+                  file: 0,
+                  rangeStart: 1,
+                  rangeEnd: aiConfig.questions.length,
+                  difficulty: "medium",
+                  timerMinutes: 10,
+                });
+                setShowAI(false);
+                return;
+              }
+              // Config mode: prefill the setup form
               const merged = {
                 category: aiConfig.category || "",
                 file: Number.parseInt(aiConfig.file || "0", 10) || 0,
@@ -136,7 +154,6 @@ export default function QuizPage() {
             }}
           />
         )}
-      </div>
     </div>
   );
 }

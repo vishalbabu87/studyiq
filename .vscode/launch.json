@@ -1,0 +1,33 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Backend Server",
+      "type": "node-terminal",
+      "request": "launch",
+      "command": "Write-Host 'Starting Backend...'; $env:SSR_MODE='true'; npm run build; npm run start",
+      "cwd": "${workspaceFolder}"
+    },
+    {
+      "name": "Frontend Dev Server",
+      "type": "node-terminal",
+      "request": "launch",
+      "command": "Write-Host 'Starting Frontend...'; $env:SSR_MODE='false'; $env:VITE_API_BASE_URL='http://localhost:4000'; npm run dev",
+      "cwd": "${workspaceFolder}"
+    },
+    {
+      "name": "Launch Chrome",
+      "request": "launch",
+      "type": "chrome",
+      "url": "http://localhost:3000",
+      "webRoot": "${workspaceFolder}"
+    }
+  ],
+  "compounds": [
+    {
+      "name": "Full App (Backend + Frontend)",
+      "configurations": ["Backend Server", "Frontend Dev Server", "Launch Chrome"],
+      "stopAll": true
+    }
+  ]
+}

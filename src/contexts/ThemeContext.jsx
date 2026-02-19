@@ -3,23 +3,73 @@ import { createContext, useContext, useEffect, useMemo, useState } from "react";
 const THEME_KEY = "studyiq-theme";
 const ThemeContext = createContext(null);
 
-export function ThemeProvider({ children }) {
-  const [theme, setTheme] = useState("light");
+// Get stored theme or default to light
+function getInitialTheme() {
+  if (typeof window === "undefined") return "light";
+  const stored = localStorage.getItem(THEME_KEY);
+  return stored || "light";
+}
 
+export function ThemeProvider({ children }) {
+  const [theme, setThemeState] = useState("light");
+  const [isHydrated, setIsHydrated] = useState(false);
+
+  // Initialize theme after hydration
   useEffect(() => {
-    const saved = localStorage.getItem(THEME_KEY) || "light";
-    setTheme(saved);
-    document.documentElement.classList.toggle("dark", saved === "dark");
+    setThemeState(getInitialTheme());
+    setIsHydrated(true);
   }, []);
 
-  const toggleTheme = () => {
-    const next = theme === "dark" ? "light" : "dark";
-    setTheme(next);
-    localStorage.setItem(THEME_KEY, next);
-    document.documentElement.classList.toggle("dark", next === "dark");
-  };
+  // Apply theme to document
+  useEffect(() => {
+    if (!isHydrated || typeof window === "undefined") return;
+    
+    const root = document.documentElement;
 
-  const value = useMemo(() => ({ theme, toggleTheme }), [theme]);
+    // Remove all possible theme classes to ensure a clean slate
+    root.classList.remove("light", "dark", "theme-lovable");
+
+    // Add the correct class based on the current theme state
+    if (theme === "dark") {
+      root.classList.add("dark");
+    } else if (theme === "lovable") {
+      root.classList.add("theme-lovable");
+    } else {
+      root.classList.add("light");
+    }
+    
+    // Persist the theme state to localStorage
+    localStorage.setItem(THEME_KEY, theme);
+    
+    console.log("Theme applied:", theme);
+  }, [theme, isHydrated]);
+
+  // Toggle through themes
+  const toggleTheme = useMemo(() => {
+    return () => {
+      setThemeState(currentTheme => {
+        if (currentTheme === "light") return "dark";
+        if (currentTheme === "dark") return "lovable";
+        return "light";
+      });
+    };
+  }, []);
+
+  // Set specific theme directly
+  const setTheme = useMemo(() => {
+    return (newTheme) => {
+      if (newTheme === "light" || newTheme === "dark" || newTheme === "lovable") {
+        setThemeState(newTheme);
+      }
+    };
+  }, []);
+
+  const value = useMemo(() => ({ 
+    theme, 
+    toggleTheme,
+    setTheme,
+    isHydrated 
+  }), [theme, isHydrated]);
 
   return <ThemeContext.Provider value={value}>{children}</ThemeContext.Provider>;
 }

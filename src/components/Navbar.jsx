@@ -1,4 +1,4 @@
-import { Home, Library, Moon, Settings, Sun, Upload, BookOpenCheck, Menu, X, ListChecks } from "lucide-react";
+import { Home, Library, Moon, Settings, Sun, Upload, BookOpenCheck, Menu, X, ListChecks, Sparkles, Wand2 } from "lucide-react";
 import { useState } from "react";
 import { Link, NavLink } from "react-router";
 import { useTheme } from "@/contexts/ThemeContext";
@@ -6,6 +6,7 @@ import { useTheme } from "@/contexts/ThemeContext";
 const navItems = [
   { icon: Home, label: "Home", path: "/home" },
   { icon: BookOpenCheck, label: "Quiz", path: "/quiz" },
+  { icon: Wand2, label: "AI Craft", path: "/craft" },
   { icon: Library, label: "Library", path: "/library" },
   { icon: ListChecks, label: "Tracker", path: "/tracker" },
   { icon: Upload, label: "Upload", path: "/upload" },
@@ -15,6 +16,18 @@ const navItems = [
 export default function Navbar() {
   const { theme, toggleTheme } = useTheme();
   const [mobileOpen, setMobileOpen] = useState(false);
+
+  const getThemeIcon = () => {
+    if (theme === "dark") return <Sun size={18} />;
+    if (theme === "lovable") return <Sparkles size={18} className="text-pink-500" />;
+    return <Moon size={18} />;
+  };
+
+  const getThemeLabel = () => {
+    if (theme === "dark") return "Dark";
+    if (theme === "lovable") return "Lovable";
+    return "Light";
+  };
 
   return (
     <nav className="sticky top-0 z-50 bg-white/80 dark:bg-gray-900/80 backdrop-blur-xl border-b border-gray-200 dark:border-gray-800">
@@ -52,14 +65,17 @@ export default function Navbar() {
           </div>
 
           <div className="flex items-center gap-2">
+            {/* Simple one-click theme toggle */}
             <button
               type="button"
               onClick={toggleTheme}
-              className="rounded-xl bg-white/70 p-2 text-slate-700 transition hover:bg-white dark:bg-slate-900/70 dark:text-slate-100 dark:hover:bg-slate-900"
-              aria-label="Toggle theme"
+              className="rounded-xl bg-white/70 p-2 text-slate-700 transition hover:bg-white dark:bg-slate-900/70 dark:text-slate-100 dark:hover:bg-slate-900 flex items-center gap-2"
+              aria-label={`Current theme: ${getThemeLabel()}. Click to change.`}
+              title={getThemeLabel()}
             >
-              {theme === "dark" ? <Sun size={18} /> : <Moon size={18} />}
+              {getThemeIcon()}
             </button>
+            
             <button
               type="button"
               onClick={() => setMobileOpen((v) => !v)}

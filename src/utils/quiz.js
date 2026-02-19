@@ -13,30 +13,86 @@ function clampRange(start, end, max) {
   return { safeStart, safeEnd };
 }
 
-function pickDistractors(allEntries, correct, targetCount = 3) {
-  const pool = allEntries.filter((entry) => entry.id !== correct.id);
-  return shuffle(pool).slice(0, targetCount);
+// Clean option text by removing bracket labels, leading numbering, quotes, and excess punctuation/spaces
+function cleanOptionText(s) {
+  let str = String(s ?? "");
+  // Remove common leading markers like "1.", "(a)", "[1]", "-" etc.
+  str = str.replace(/^\s*(?:[\(\[]?[A-Za-z]?\d+[\)\]]|[\(\[]?[A-Za-z][\)\]]|[\-–—•])\s*[\-–—.:)]*\s*/u, "");
+  // Trim surrounding quotes and collapse whitespace
+  str = str.replace(/^['"“”]|['"“”]$/g, "").replace(/\s+/g, " ").trim();
+  return str;
+}
+
+function isMeaningfulText(s) {
+  if (!s) return false;
+  const t = String(s).trim();
+  if (t.length < 2) return false;
+  // Only digits or only punctuation is not meaningful
+  if (/^[\d\W]+$/u.test(t)) return false;
+  return true;
+}
+
+function pickDistractors(allEntries, correct, targetCount = 3, direction = "term_to_meaning") {
+  const correctRaw = direction === "term_to_meaning" ? correct.meaning : correct.term;
+  const correctClean = cleanOptionText(correctRaw).toLowerCase();
+
+  const candidates = [];
+  for (const e of allEntries) {
+    if (e.id === correct.id) continue;
+    const raw = direction === "term_to_meaning" ? e.meaning : e.term;
+    const cleaned = cleanOptionText(raw);
+    if (!isMeaningfulText(cleaned)) continue;
+    if (cleaned.toLowerCase() === correctClean) continue;
+    candidates.push({ entry: e, text: cleaned });
+  }
+
+  // Uniq by cleaned text
+  const seen = new Set();
+  const uniq = [];
+  for (const c of candidates) {
+    const key = c.text.toLowerCase();
+    if (seen.has(key)) continue;
+    seen.add(key);
+    uniq.push(c);
+  }
+
+  const shuffled = shuffle(uniq);
+  return shuffled.slice(0, targetCount).map((c) => c.entry);
 }
 
 function buildQuestion(entry, allEntries, direction = "term_to_meaning") {
-  const distractors = pickDistractors(allEntries, entry, 3);
+  const distractors = pickDistractors(allEntries, entry, 3, direction);
 
-  const optionSource =
-    direction === "term_to_meaning"
-      ? [
-          { text: entry.meaning, isCorrect: true },
-          ...distractors.map((d) => ({ text: d.meaning, isCorrect: false })),
-        ]
-      : [
-          { text: entry.term, isCorrect: true },
-          ...distractors.map((d) => ({ text: d.term, isCorrect: false })),
-        ];
+  const correctRaw = direction === "term_to_meaning" ? entry.meaning : entry.term;
+  const correctText = cleanOptionText(correctRaw);
+
+  const optionSource = [
+    { text: correctText, isCorrect: true },
+    ...distractors.map((d) => {
+      const raw = direction === "term_to_meaning" ? d.meaning : d.term;
+      return { text: cleanOptionText(raw), isCorrect: false };
+    }),
+  ].filter((opt) => isMeaningfulText(opt.text));
+
+  // Deduplicate options by text (case-insensitive)
+  const seen = new Set();
+  const unique = [];
+  for (const o of optionSource) {
+    const key = o.text.toLowerCase();
+    if (seen.has(key)) continue;
+    seen.add(key);
+    unique.push(o);
+  }
+
+  // Clean the prompt as well, but fall back to original if it becomes empty
+  const promptRaw = direction === "term_to_meaning" ? entry.term : entry.meaning;
+  const cleanedPrompt = cleanOptionText(promptRaw) || promptRaw;
 
   return {
     id: entry.id,
-    prompt: direction === "term_to_meaning" ? entry.term : entry.meaning,
+    prompt: cleanedPrompt,
     direction,
-    options: shuffle(optionSource),
+    options: shuffle(unique),
     entry,
   };
 }

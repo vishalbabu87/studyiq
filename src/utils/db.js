@@ -172,3 +172,38 @@ export async function saveFilePointer(fileId, pointer) {
   if (!file) return;
   await updateFile({ ...file, sequencePointer: pointer });
 }
+
+export async function deleteFileAndContent(fileId) {
+  const db = await initDB();
+  return new Promise((resolve, reject) => {
+    const tx = db.transaction(["files", "entries"], "readwrite");
+    tx.oncomplete = resolve;
+    tx.onerror = () => reject(tx.error);
+
+    // Delete associated entries
+    const entriesStore = tx.objectStore("entries");
+    const entriesIndex = entriesStore.index("sourceFile");
+    const entriesRequest = entriesIndex.openKeyCursor(IDBKeyRange.only(fileId));
+    entriesRequest.onsuccess = () => {
+      const cursor = entriesRequest.result;
+      if (cursor) {
+        entriesStore.delete(cursor.primaryKey);
+        cursor.continue();
+      }
+    };
+
+    // Delete the file
+    tx.objectStore("files").delete(fileId);
+  });
+}
+
+export async function deleteCategory(categoryId) {
+    const db = await initDB();
+    return new Promise((resolve, reject) => {
+        const tx = db.transaction("categories", "readwrite");
+        tx.oncomplete = resolve;
+        tx.onerror = () => reject(tx.error);
+        tx.objectStore("categories").delete(categoryId);
+    });
+}
+

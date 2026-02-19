@@ -134,12 +134,12 @@ export default function TrackerPage() {
   };
 
   return (
-    <section className="space-y-5">
-      <div>
-        <h1 className="text-4xl font-black tracking-tight">
-          <span className="bg-gradient-to-r from-pink-500 via-fuchsia-500 to-violet-500 bg-clip-text text-transparent">Smart Study Tracker</span>
+    <section className="min-h-screen bg-app-gradient space-y-5">
+      <div className="bg-white/90 dark:bg-white/95 rounded-3xl p-6 shadow-lg hover-lift border border-gray-200 dark:border-gray-800">
+        <h1 className="text-4xl font-black tracking-tight text-gray-900 dark:text-slate-900">
+          <span className="bg-gradient-to-r from-pink-500 via-fuchsia-500 to-violet-500 bg-clip-text text-transparent dark:bg-none dark:text-gray-900">Smart Study Tracker</span>
         </h1>
-        <p className="text-sm text-slate-600 dark:text-slate-300">
+        <p className="text-sm text-gray-600 dark:text-gray-400">
           Add chapter, study anytime, then mark done. No fixed-date lock.
         </p>
       </div>

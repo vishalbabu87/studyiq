@@ -23,10 +23,12 @@
 }
 
 @layer utilities {
+  /* Main gradient background */
   .bg-app-gradient {
     position: relative;
     isolation: isolate;
-    overflow: hidden;
+    overflow: visible;
+    min-height: 100vh;
     background-color: rgb(241 245 255);
     background-image:
       radial-gradient(circle at 20% 16%, rgba(96, 165, 250, 0.34), transparent 44%),
@@ -40,7 +42,7 @@
     content: "";
     position: absolute;
     inset: -16%;
-    z-index: 0;
+    z-index: -1;
     pointer-events: none;
     opacity: 0.8;
     background:
@@ -56,41 +58,62 @@
 
   .bg-app-gradient > * {
     position: relative;
-    z-index: 1;
+    z-index: 2;
   }
 
+  /* Dark mode gradient */
   .dark .bg-app-gradient {
-    background-color: rgb(43 58 90);
-    background-image:
-      radial-gradient(circle at 18% 14%, rgba(96, 165, 250, 0.36), transparent 44%),
-      radial-gradient(circle at 82% 74%, rgba(244, 114, 182, 0.34), transparent 45%),
-      radial-gradient(circle at 50% 100%, rgba(192, 132, 252, 0.3), transparent 42%),
-      linear-gradient(165deg, rgb(30 58 138), rgb(67 56 202), rgb(190 24 93));
+    background-color: #0a0a0a;
+    background-image: none;
     background-attachment: fixed;
   }
 
   .dark .bg-app-gradient::before {
-    opacity: 0.62;
-    background:
-      radial-gradient(circle at 18% 20%, rgba(255, 255, 255, 0.2), transparent 42%),
-      radial-gradient(circle at 74% 24%, rgba(96, 165, 250, 0.52), transparent 43%),
-      radial-gradient(circle at 84% 78%, rgba(244, 114, 182, 0.5), transparent 45%),
-      radial-gradient(circle at 20% 86%, rgba(239, 68, 68, 0.32), transparent 42%),
-      radial-gradient(circle at 46% 56%, rgba(168, 85, 247, 0.38), transparent 48%);
+    display: none;
   }
 
+  /* ── Lovable mode: animated background lives on <body> ── */
+  /* bg-app-gradient itself becomes transparent so body bg shows through */
+  .theme-lovable .bg-app-gradient {
+    background: transparent !important;
+    background-image: none !important;
+    position: relative !important;
+    isolation: auto !important;
+  }
+
+  .theme-lovable .bg-app-gradient::before {
+    display: none !important;
+  }
+
+  .theme-lovable .bg-app-gradient > * {
+    position: relative;
+    z-index: 1;
+  }
+
+  /* Glass card */
   .glass-card {
-    @apply rounded-2xl border border-slate-200/80 bg-white/90 shadow-lg backdrop-blur-sm dark:border-white/25 dark:bg-slate-900/45;
+    @apply rounded-2xl border border-slate-200/80 bg-white/90 shadow-lg backdrop-blur-sm;
   }
 
+  /* Dark mode glass card */
+  .dark .glass-card {
+    background-color: #16181c !important;
+    border-color: #33363d !important;
+    box-shadow: none !important;
+    color: #ffffff !important;
+  }
+
+  /* Soft glow */
   .soft-glow {
     box-shadow: 0 16px 30px -24px rgba(99, 102, 241, 0.35);
   }
 
+  /* Pink-blue gradient */
   .pink-blue-gradient {
     background-image: linear-gradient(120deg, rgb(236 72 153), rgb(168 85 247) 45%, rgb(249 115 22) 75%, rgb(250 204 21));
   }
 
+  /* Card hover */
   .card-hover {
     transition: transform 0.2s ease, box-shadow 0.2s ease;
   }
@@ -100,6 +123,7 @@
     box-shadow: 0 16px 30px -24px rgba(99, 102, 241, 0.4);
   }
 
+  /* Hover lift */
   .hover-lift {
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   }
@@ -109,29 +133,308 @@
     box-shadow: 0 12px 24px rgba(0, 0, 0, 0.15);
   }
 
+  /* Text strong */
   .text-strong {
-    @apply text-slate-900 dark:text-slate-100;
+    @apply text-slate-900 dark:text-white font-semibold;
   }
 
+  /* Text muted */
   .text-muted {
-    @apply text-slate-600 dark:text-slate-300;
+    @apply text-slate-600 dark:text-gray-300;
   }
 }
 
+/* ========================================
+   DARK MODE STYLES
+   ======================================== */
+
+/* Body background */
+.dark body {
+  background-color: #0a0a0a !important;
+  color: #ffffff !important;
+}
+
+/* White backgrounds → dark */
+.dark .bg-white,
+.dark .bg-gray-50, .dark .bg-gray-100,
+.dark .bg-slate-50, .dark .bg-slate-100, .dark .bg-slate-200 {
+  background-color: #16181c !important;
+}
+
+/* Cards and panels */
+.dark .bg-white\/90,
+.dark .bg-white\/95 {
+  background-color: rgba(22, 24, 28, 0.95) !important;
+}
+
+/* All text → white */
+.dark .text-slate-900, .dark .text-slate-800, .dark .text-slate-700,
+.dark .text-slate-600, .dark .text-slate-500,
+.dark .text-gray-900, .dark .text-gray-800, .dark .text-gray-700,
+.dark .text-gray-600, .dark .text-gray-500,
+.dark .text-black {
+  color: #ffffff !important;
+}
+
+.dark .text-gray-400, .dark .text-slate-400,
+.dark .text-gray-300, .dark .text-slate-300 {
+  color: #9ca3af !important;
+}
+
+/* Borders */
+.dark .border-slate-200, .dark .border-gray-200,
+.dark .border-white, .dark .border-gray-300 {
+  border-color: #33363d !important;
+}
+
+/* Form elements */
+.dark select,
+.dark input[type="date"],
+.dark input[type="datetime-local"],
+.dark input[type="time"],
+.dark input[type="text"],
+.dark input[type="email"],
+.dark input[type="password"],
+.dark input[type="number"],
+.dark textarea {
+  background-color: #1a1d24 !important;
+  color: #ffffff !important;
+  border-color: #374151 !important;
+}
+
+.dark select option {
+  background-color: #1a1d24 !important;
+  color: #ffffff !important;
+}
+
+.dark input[type="date"]::-webkit-calendar-picker-indicator {
+  filter: invert(1) brightness(1.5) !important;
+  cursor: pointer;
+}
+
+.dark select {
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='m6 8 4 4 4-4'/%3e%3c/svg%3e") !important;
+  background-position: right 0.5rem center !important;
+  background-repeat: no-repeat !important;
+  background-size: 1.5em 1.5em !important;
+  padding-right: 2.5rem !important;
+}
+
+.dark input::placeholder, .dark textarea::placeholder {
+  color: #6b7280 !important;
+  opacity: 1 !important;
+}
+
+/* Navigation */
+.dark nav,
+.dark .sticky {
+  background-color: #111318 !important;
+  border-color: #33363d !important;
+}
+
+.dark nav a, .dark nav span, .dark nav button {
+  color: #e5e7eb !important;
+}
+
+.dark nav a:hover, .dark nav button:hover {
+  background-color: #374151 !important;
+}
+
+/* Gradient text in dark mode */
+.dark .bg-clip-text {
+  -webkit-text-fill-color: #ffffff !important;
+}
+
+/* Dark bg-gray-800/900 cards */
+.dark .bg-gray-800, .dark .bg-slate-800 {
+  background-color: #1f2937 !important;
+}
+
+.dark .bg-gray-900, .dark .bg-slate-900 {
+  background-color: #111827 !important;
+}
+
+/* ========================================
+   LOVABLE MODE — Animated Mesh Background
+   The animation is applied to body so it
+   scrolls behind all content naturally.
+   ======================================== */
+
+html.theme-lovable body {
+  background-color: #0d0320;
+  background-image:
+    radial-gradient(ellipse at 20% 20%, #ff2a31 0%, transparent 55%),
+    radial-gradient(ellipse at 80% 15%, #ff94f4 0%, transparent 55%),
+    radial-gradient(ellipse at 15% 80%, #6d8aff 0%, transparent 55%),
+    radial-gradient(ellipse at 80% 80%, #ff0092 0%, transparent 55%),
+    radial-gradient(ellipse at 50% 50%, #a855f7 0%, transparent 60%);
+  background-size: 200% 200%;
+  background-position: 0% 0%;
+  animation: fluidMesh 18s ease-in-out infinite;
+  min-height: 100vh;
+}
+
+/* All content sits on top of body animation */
+html.theme-lovable .bg-app-gradient {
+  background: transparent !important;
+  min-height: 100vh;
+}
+
+/* Nav bar: frosted glass */
+html.theme-lovable nav,
+html.theme-lovable .sticky {
+  background: rgba(255, 255, 255, 0.85) !important;
+  backdrop-filter: blur(12px) !important;
+  -webkit-backdrop-filter: blur(12px) !important;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.3) !important;
+  z-index: 50 !important;
+}
+
+html.theme-lovable nav a,
+html.theme-lovable nav button,
+html.theme-lovable nav span {
+  color: #1a1a2e !important;
+}
+
+/* Cards: frosted glass — only on actual card/panel containers, not on small UI elements */
+html.theme-lovable .bg-white,
+html.theme-lovable .bg-white\/90,
+html.theme-lovable .bg-white\/95,
+html.theme-lovable .glass-card {
+  background: rgba(255, 255, 255, 0.88) !important;
+  backdrop-filter: blur(14px) !important;
+  -webkit-backdrop-filter: blur(14px) !important;
+  border: 1px solid rgba(255, 255, 255, 0.4) !important;
+}
+
+/* Large card panels only (not small icon containers or badges) */
+html.theme-lovable div.rounded-3xl:not([class*="w-"]):not([class*="h-"]):not([class*="gap-"]),
+html.theme-lovable div.rounded-2xl:not([class*="w-"]):not([class*="h-"]):not([class*="gap-"]) {
+  background: rgba(255, 255, 255, 0.88) !important;
+  backdrop-filter: blur(14px) !important;
+  -webkit-backdrop-filter: blur(14px) !important;
+  border: 1px solid rgba(255, 255, 255, 0.35) !important;
+}
+
+/* Text colours in Lovable mode */
+html.theme-lovable h1,
+html.theme-lovable h2,
+html.theme-lovable h3,
+html.theme-lovable h4,
+html.theme-lovable h5,
+html.theme-lovable h6 {
+  color: #1a1a2e !important;
+  text-shadow: none !important;
+}
+
+html.theme-lovable p,
+html.theme-lovable span,
+html.theme-lovable label,
+html.theme-lovable .text-gray-600,
+html.theme-lovable .text-gray-700,
+html.theme-lovable .text-slate-600 {
+  color: #374151 !important;
+}
+
+/* Gradient text override for lovable */
+html.theme-lovable .bg-clip-text {
+  background: linear-gradient(135deg, #7c3aed, #ec4899, #f97316) !important;
+  -webkit-background-clip: text !important;
+  background-clip: text !important;
+  -webkit-text-fill-color: transparent !important;
+  color: transparent !important;
+}
+
+/* Form elements */
+html.theme-lovable input,
+html.theme-lovable textarea,
+html.theme-lovable select {
+  background: rgba(255, 255, 255, 0.92) !important;
+  color: #1f2937 !important;
+  border: 1px solid rgba(0, 0, 0, 0.15) !important;
+  backdrop-filter: blur(4px) !important;
+}
+
+html.theme-lovable select option {
+  background: #ffffff !important;
+  color: #1f2937 !important;
+}
+
+/* Buttons — exclude gradient active buttons and colored action buttons */
+html.theme-lovable button:not(.pink-blue-gradient):not(.theme-btn-active):not([class*="bg-purple"]):not([class*="bg-blue"]):not([class*="bg-emerald"]):not([class*="bg-rose"]):not([class*="bg-gradient"]) {
+  background: rgba(255, 255, 255, 0.9) !important;
+  color: #1f2937 !important;
+  border: 1px solid rgba(0, 0, 0, 0.12) !important;
+}
+
+html.theme-lovable .pink-blue-gradient {
+  background: linear-gradient(120deg, #ec4899, #8b5cf6 45%, #f97316 75%, #facc15) !important;
+  color: #ffffff !important;
+  border: none !important;
+}
+
+/* Glass card internals */
+html.theme-lovable .glass-card * {
+  color: #1f2937 !important;
+}
+
+/* Footer */
+html.theme-lovable footer {
+  background: rgba(255, 255, 255, 0.9) !important;
+  backdrop-filter: blur(12px) !important;
+}
+
+/* Hero text panel — subtle frosted glass only in lovable mode */
+html.theme-lovable .hero-text-panel {
+  background: rgba(255, 255, 255, 0.07) !important;
+  backdrop-filter: blur(14px) !important;
+  -webkit-backdrop-filter: blur(14px) !important;
+  border: 1px solid rgba(255, 255, 255, 0.12) !important;
+  box-shadow: 0 4px 32px rgba(0, 0, 0, 0.08) !important;
+}
+
+/* Selection action bar — always visible across all themes */
+.selection-action-bar {
+  background: rgba(255, 255, 255, 0.96) !important;
+  backdrop-filter: blur(16px) !important;
+  border: 1px solid rgba(0, 0, 0, 0.08) !important;
+  color: #1f2937 !important;
+}
+
+.dark .selection-action-bar {
+  background: rgba(17, 19, 24, 0.97) !important;
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+  color: #ffffff !important;
+}
+
+html.theme-lovable .selection-action-bar {
+  background: rgba(255, 255, 255, 0.92) !important;
+  backdrop-filter: blur(20px) !important;
+  border: 1px solid rgba(255, 255, 255, 0.4) !important;
+  color: #1f2937 !important;
+}
+
+/* ========================================
+   ANIMATIONS
+   ======================================== */
+
 @keyframes dreamyFloat {
-  0% {
-    transform: translate3d(-2%, -1%, 0) scale(1.02);
-  }
-  50% {
-    transform: translate3d(2%, 1.5%, 0) scale(1.08);
-  }
-  100% {
-    transform: translate3d(-1%, 2%, 0) scale(1.04);
-  }
+  0%   { transform: translate3d(-2%, -1%, 0) scale(1.02); }
+  50%  { transform: translate3d(2%, 1.5%, 0) scale(1.08); }
+  100% { transform: translate3d(-1%, 2%, 0) scale(1.04); }
+}
+
+@keyframes fluidMesh {
+  0%   { background-position: 0% 0%; }
+  25%  { background-position: 100% 25%; }
+  50%  { background-position: 60% 100%; }
+  75%  { background-position: 10% 60%; }
+  100% { background-position: 0% 0%; }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .bg-app-gradient::before {
+  .bg-app-gradient::before,
+  html.theme-lovable body {
     animation: none;
   }
 }
