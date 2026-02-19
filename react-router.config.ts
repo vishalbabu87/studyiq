@@ -1,9 +1,9 @@
 import type { Config } from "@react-router/dev/config";
 
-const ssrEnabled = process.env.SSR_MODE !== "false";
+// Disable SSR for Vercel deployment - use SPA mode
+const ssrEnabled = false;
 
 export default {
   appDirectory: "./src/app",
   ssr: ssrEnabled,
-  routeDiscovery: ssrEnabled ? { mode: "initial" } : undefined,
 } satisfies Config;
