@@ -14,5 +14,6 @@ export default [
   route("api/ai/quiz", "./routes/api.ai.quiz.jsx"),
   route("api/extract", "./routes/api.extract.jsx"),
   route("api/parse", "./routes/api.parse.jsx"),
-  route("*", "./__create/not-found.tsx"),
+  // Note: removed wildcard route to prevent circular reference on Vercel
+  // 404 is handled by React Router automatically
 ];
