@@ -35,6 +35,7 @@ export function Layout({ children }: { children: ReactNode }) {
         <meta name="mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+        <link rel="manifest" href="https://progressier.app/sSYv8rlqfKrc7OuVmJyz/progressier.json"/>
         <Meta />
         <Links />
       </head>
@@ -42,6 +43,7 @@ export function Layout({ children }: { children: ReactNode }) {
         {children}
         <ScrollRestoration />
         <Scripts />
+        <script defer src="https://progressier.app/sSYv8rlqfKrc7OuVmJyz/script.js"></script>
       </body>
     </html>
   );
