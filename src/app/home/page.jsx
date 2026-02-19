@@ -56,18 +56,18 @@ export default function HomePage() {
           </p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
+        <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-6 mb-6 md:mb-12">
           {statCards.map((card) => {
             const Icon = card.icon;
             return (
-              <div key={card.label} className="bg-white dark:bg-gray-900 rounded-3xl p-6 shadow-lg hover-lift border border-gray-200 dark:border-gray-800">
-                <div className="flex items-center gap-4">
-                  <div className={`w-14 h-14 rounded-2xl bg-gradient-to-br ${card.color} flex items-center justify-center shadow-lg`}>
-                    <Icon className="text-white" size={24} />
+              <div key={card.label} className="bg-white dark:bg-gray-900 rounded-2xl md:rounded-3xl p-3 md:p-6 shadow-lg hover-lift border border-gray-200 dark:border-gray-800">
+                <div className="flex items-center gap-2 md:gap-4">
+                  <div className={`w-10 h-10 md:w-14 md:h-14 rounded-xl md:rounded-2xl bg-gradient-to-br ${card.color} flex items-center justify-center shadow-lg`}>
+                    <Icon className="text-white" size={18} md:size={24} />
                   </div>
                   <div>
-                    <div className="text-3xl font-bold text-gray-900 dark:text-white">{card.value}</div>
-                    <div className="text-sm text-gray-600 dark:text-gray-400">{card.label}</div>
+                    <div className="text-xl md:text-3xl font-bold text-gray-900 dark:text-white">{card.value}</div>
+                    <div className="text-xs md:text-sm text-gray-600 dark:text-gray-400">{card.label}</div>
                   </div>
                 </div>
               </div>
@@ -75,24 +75,24 @@ export default function HomePage() {
           })}
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 md:gap-6">
           <Link to="/upload">
-            <div className="bg-white dark:bg-gray-900 rounded-3xl p-8 shadow-lg hover-lift cursor-pointer border border-gray-200 dark:border-gray-800 group">
-              <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-purple-600 to-pink-600 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform shadow-lg">
-                <FileText className="text-white" size={28} />
+            <div className="bg-white dark:bg-gray-900 rounded-2xl md:rounded-3xl p-5 md:p-8 shadow-lg hover-lift cursor-pointer border border-gray-200 dark:border-gray-800 group">
+              <div className="w-12 h-12 md:w-16 md:h-16 rounded-xl md:rounded-2xl bg-gradient-to-br from-purple-600 to-pink-600 flex items-center justify-center mb-3 md:mb-4 group-hover:scale-110 transition-transform shadow-lg">
+                <FileText className="text-white" size={22} md:size={28} />
               </div>
-              <h3 className="text-2xl font-bold mb-2 text-gray-900 dark:text-white">Upload Files</h3>
-              <p className="text-gray-600 dark:text-gray-400">Upload PDFs, documents, images, or JSON files to extract terms and definitions</p>
+              <h3 className="text-lg md:text-2xl font-bold mb-1 md:mb-2 text-gray-900 dark:text-white">Upload Files</h3>
+              <p className="text-sm text-gray-600 dark:text-gray-400">Upload PDFs, documents, images, or JSON files to extract terms and definitions</p>
             </div>
           </Link>
 
           <Link to="/quiz">
-            <div className="bg-gradient-to-br from-purple-600 via-pink-600 to-orange-500 rounded-3xl p-8 shadow-2xl hover-lift cursor-pointer group">
-              <div className="w-16 h-16 rounded-2xl bg-white/20 backdrop-blur-sm flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
-                <TrendingUp className="text-white" size={28} />
+            <div className="bg-gradient-to-br from-purple-600 via-pink-600 to-orange-500 rounded-2xl md:rounded-3xl p-5 md:p-8 shadow-2xl hover-lift cursor-pointer group">
+              <div className="w-12 h-12 md:w-16 md:h-16 rounded-xl md:rounded-2xl bg-white/20 backdrop-blur-sm flex items-center justify-center mb-3 md:mb-4 group-hover:scale-110 transition-transform">
+                <TrendingUp className="text-white" size={22} md:size={28} />
               </div>
-              <h3 className="text-2xl font-bold mb-2 text-white">Start Quiz</h3>
-              <p className="text-white/90">Create custom quizzes with AI or test yourself with sequential learning</p>
+              <h3 className="text-lg md:text-2xl font-bold mb-1 md:mb-2 text-white">Start Quiz</h3>
+              <p className="text-white/90 text-sm">Create custom quizzes with AI or test yourself with sequential learning</p>
             </div>
           </Link>
         </div>

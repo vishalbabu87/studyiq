@@ -122,19 +122,19 @@ export default function LibraryPage() {
   };
 
   return (
-    <div className="max-w-7xl mx-auto px-4 py-8">
+    <div className="max-w-7xl mx-auto px-3 md:px-4 py-4 md:py-8">
       <SelectionActionBar />
-        <div className="bg-white dark:bg-gray-900 rounded-3xl p-6 shadow-lg hover-lift border border-gray-200 dark:border-gray-800 mb-8">
-          <h1 className="text-3xl md:text-4xl font-bold bg-gradient-to-r from-purple-600 via-pink-600 to-orange-500 bg-clip-text text-transparent">
+        <div className="bg-white dark:bg-gray-900 rounded-2xl md:rounded-3xl p-4 md:p-6 shadow-lg hover-lift border border-gray-200 dark:border-gray-800 mb-4 md:mb-8">
+          <h1 className="text-2xl md:text-4xl font-bold bg-gradient-to-r from-purple-600 via-pink-600 to-orange-500 bg-clip-text text-transparent">
             Your Library
           </h1>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          <div className="glass-card p-6 hover-lift relative">
-            <div className="flex justify-between items-center mb-4">
-              <h2 className="text-xl font-bold flex items-center gap-2">
-                <Folder size={24} className="text-purple-600" />
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-3 md:gap-6">
+          <div className="glass-card p-3 md:p-6 hover-lift relative">
+            <div className="flex justify-between items-center mb-2 md:mb-4">
+              <h2 className="text-lg md:text-xl font-bold flex items-center gap-2">
+                <Folder size={20} md:size={24} className="text-purple-600" />
                 Categories
               </h2>
               <button
@@ -183,10 +183,10 @@ export default function LibraryPage() {
             </div>
           </div>
 
-          <div className="glass-card p-6 hover-lift relative">
-            <div className="flex justify-between items-center mb-4">
-              <h2 className="text-xl font-bold flex items-center gap-2">
-                <FileText size={24} className="text-blue-600" />
+          <div className="glass-card p-3 md:p-6 hover-lift relative">
+            <div className="flex justify-between items-center mb-2 md:mb-4">
+              <h2 className="text-lg md:text-xl font-bold flex items-center gap-2">
+                <FileText size={20} md:size={24} className="text-blue-600" />
                 Files
               </h2>
               <button
@@ -194,7 +194,7 @@ export default function LibraryPage() {
                   setIsSelectionMode(true);
                   setSelectionType('file');
                 }}
-                className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm font-medium"
+                className="px-3 md:px-4 py-1.5 md:py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm font-medium"
               >
                 Select
               </button>
@@ -214,7 +214,7 @@ export default function LibraryPage() {
                                 setSelectedFile(file.id);
                             }
                         }}
-                        className={`group w-full text-left px-4 py-3 rounded-xl transition-all ring-1 ${
+                        className={`group w-full text-left px-3 md:px-4 py-2 md:py-3 rounded-xl transition-all ring-1 ${
                             isSelectionMode && selectionType === 'file' ? 
                             (isSelected ? 'ring-blue-600 ring-2 bg-blue-100 dark:bg-blue-900/50' : 'ring-gray-300 dark:ring-gray-600 opacity-70') :
                             (selectedFile === file.id
@@ -222,12 +222,12 @@ export default function LibraryPage() {
                             : "bg-gray-50 dark:bg-gray-800 hover:bg-gray-100 dark:hover:bg-gray-700 ring-slate-200/60 dark:ring-white/10")
                         }`}
                         >
-                        <div className="font-medium truncate">{file.name}</div>
-                        <div className="text-sm opacity-70">{file.entryCount} terms</div>
+                        <div className="font-medium truncate text-sm md:text-base">{file.name}</div>
+                        <div className="text-xs md:text-sm opacity-70">{file.entryCount} terms</div>
                         </button>
                         {isSelectionMode && selectionType === 'file' && (
-                           <div className="absolute top-1/2 -translate-y-1/2 right-3 pointer-events-none">
-                               {isSelected ? <CheckSquare className="text-blue-600" /> : <Square className="text-gray-400" />}
+                           <div className="absolute top-1/2 -translate-y-1/2 right-2 md:right-3 pointer-events-none">
+                               {isSelected ? <CheckSquare className="text-blue-600" size={18}/> : <Square className="text-gray-400" size={18}/>}
                            </div>
                         )}
                     </div>
@@ -236,37 +236,37 @@ export default function LibraryPage() {
             </div>
           </div>
 
-          <div className="glass-card p-6 hover-lift">
-            <h2 className="text-xl font-bold mb-4 flex items-center gap-2">
-              <Eye size={24} className="text-green-600" />
+          <div className="glass-card p-3 md:p-6 hover-lift">
+            <h2 className="text-lg md:text-xl font-bold mb-2 md:mb-4 flex items-center gap-2">
+              <Eye size={20} md:size={24} className="text-green-600" />
               Terms ({entries.length})
             </h2>
-            <div className="space-y-3 max-h-96 overflow-y-auto">
+            <div className="space-y-2 md:space-y-3 max-h-64 md:max-h-96 overflow-y-auto">
               {paginatedEntries.map((entry) => (
-                <div key={entry.id} className="p-4 bg-gray-50 dark:bg-gray-800 rounded-xl ring-1 ring-slate-200/60 dark:ring-white/10 hover-lift">
-                  <div className="font-semibold mb-1">{entry.term}</div>
-                  <div className="text-sm text-gray-600 dark:text-gray-400">{entry.meaning}</div>
-                  {entry.wrongCount > 0 && <div className="mt-2 text-xs text-red-500">Wrong: {entry.wrongCount} times</div>}
+                <div key={entry.id} className="p-2 md:p-4 bg-gray-50 dark:bg-gray-800 rounded-xl ring-1 ring-slate-200/60 dark:ring-white/10 hover-lift">
+                  <div className="font-semibold mb-0.5 md:mb-1 text-sm md:text-base">{entry.term}</div>
+                  <div className="text-xs md:text-sm text-gray-600 dark:text-gray-400">{entry.meaning}</div>
+                  {entry.wrongCount > 0 && <div className="mt-1 md:mt-2 text-xs text-red-500">Wrong: {entry.wrongCount} times</div>}
                 </div>
               ))}
             </div>
 
             {totalPages > 1 && (
-              <div className="mt-4 flex items-center justify-between">
+              <div className="mt-3 md:mt-4 flex items-center justify-between">
                 <button
                   onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
                   disabled={currentPage === 1}
-                  className="px-4 py-2 rounded-xl bg-gray-200 dark:bg-gray-700 disabled:opacity-50"
+                  className="px-3 md:px-4 py-1.5 md:py-2 rounded-xl bg-gray-200 dark:bg-gray-700 disabled:opacity-50 text-sm"
                 >
-                  Previous
+                  Prev
                 </button>
-                <span className="text-sm text-gray-600 dark:text-gray-400">
-                  Page {currentPage} of {totalPages}
+                <span className="text-xs md:text-sm text-gray-600 dark:text-gray-400">
+                  {currentPage}/{totalPages}
                 </span>
                 <button
                   onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
                   disabled={currentPage === totalPages}
-                  className="px-4 py-2 rounded-xl bg-gray-200 dark:bg-gray-700 disabled:opacity-50"
+                  className="px-3 md:px-4 py-1.5 md:py-2 rounded-xl bg-gray-200 dark:bg-gray-700 disabled:opacity-50 text-sm"
                 >
                   Next
                 </button>
