@@ -4,6 +4,7 @@ import { ThemeProvider } from "@/contexts/ThemeContext";
 import Navbar from "@/components/Navbar";
 import appStylesHref from "./global.css?url";
 import tailwindStylesHref from "../index.css?url";
+import { useEffect } from "react";
 
 export const links = () => [
   { rel: "stylesheet", href: appStylesHref },
@@ -31,11 +32,19 @@ export function Layout({ children }: { children: ReactNode }) {
       <head>
         <meta charSet="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
-        <meta name="theme-color" content="#6366f1" />
+        <meta name="theme-color" content="#6366f1" media="(prefers-color-scheme: light)" />
+        <meta name="theme-color" content="#0f172a" media="(prefers-color-scheme: dark)" />
         <meta name="mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-status-bar-style" content="default" />
-        <link rel="manifest" href="https://progressier.app/sSYv8rlqfKrc7OuVmJyz/progressier.json"/>
+        <meta name="apple-mobile-web-app-title" content="StudyIQ" />
+        <meta name="application-name" content="StudyIQ" />
+        <meta name="msapplication-TileColor" content="#6366f1" />
+        <meta name="msapplication-TileImage" content="/icons/icon-192.png" />
+        <link rel="apple-touch-icon" href="/icons/icon-192.png" />
+        <link rel="apple-touch-icon" sizes="192x192" href="/icons/icon-192.png" />
+        <link rel="apple-touch-icon" sizes="512x512" href="/icons/icon-512.png" />
+        <link rel="mask-icon" href="/icons/icon-192.svg" color="#6366f1" />
         <Meta />
         <Links />
       </head>
@@ -43,15 +52,50 @@ export function Layout({ children }: { children: ReactNode }) {
         {children}
         <ScrollRestoration />
         <Scripts />
-        <script defer src="https://progressier.app/sSYv8rlqfKrc7OuVmJyz/script.js"></script>
       </body>
     </html>
   );
 }
 
+function ServiceWorkerRegistration() {
+  useEffect(() => {
+    if ("serviceWorker" in navigator) {
+      navigator.serviceWorker
+        .register("/sw.js")
+        .then((registration) => {
+          console.log("SW registered:", registration.scope);
+          
+          // Check for updates
+          registration.addEventListener("updatefound", () => {
+            const newWorker = registration.installing;
+            newWorker?.addEventListener("statechange", () => {
+              if (newWorker.state === "installed" && navigator.serviceWorker.controller) {
+                console.log("New SW available, prompting reload...");
+              }
+            });
+          });
+        })
+        .catch((error) => {
+          console.error("SW registration failed:", error);
+        });
+      
+      // Handle service worker updates
+      let refreshing = false;
+      navigator.serviceWorker.addEventListener("controllerchange", () => {
+        if (!refreshing) {
+          refreshing = true;
+          window.location.reload();
+        }
+      });
+    }
+  }, []);
+  return null;
+}
+
 export default function App() {
   return (
     <ThemeProvider>
+      <ServiceWorkerRegistration />
       <div className="bg-app-gradient min-h-screen transition-colors duration-300">
         <Navbar />
         <main className="mx-auto max-w-7xl px-4 py-8">
