@@ -12,9 +12,10 @@ RUN npm ci
 
 COPY . .
 
+ENV NODE_ENV=production
+ENV STUDYIQ_SSR=true
 RUN npm run build
 
-ENV NODE_ENV=production
 ENV PORT=10000
 ENV TESSERACT_PATH=/usr/bin/tesseract
 ENV TESSERACT_LANG=eng
