@@ -1,0 +1,64 @@
+{
+  "subjects": {
+    "history": {
+      "label": "History",
+      "keywords": ["history", "ancient", "medieval", "modern", "empire", "dynasty", "battle", "treaty", "revolution", "independence", "civilization", "ruler", "chronology"],
+      "factTypes": ["historical_event", "date_fact", "definition"],
+      "quizTypes": ["mcq", "fill_blank", "match"]
+    },
+    "mathematics": {
+      "label": "Mathematics",
+      "keywords": ["math", "mathematics", "algebra", "geometry", "trigonometry", "calculus", "probability", "statistics", "equation", "theorem", "formula"],
+      "factTypes": ["formula", "numeric_value", "definition"],
+      "quizTypes": ["mcq", "fill_blank"]
+    },
+    "physics": {
+      "label": "Physics",
+      "keywords": ["physics", "motion", "force", "energy", "power", "velocity", "acceleration", "wave", "optics", "electricity", "magnetism", "thermodynamics"],
+      "factTypes": ["unit_value", "constant", "definition", "formula"],
+      "quizTypes": ["mcq", "fill_blank", "match"]
+    },
+    "chemistry": {
+      "label": "Chemistry",
+      "keywords": ["chemistry", "atom", "molecule", "compound", "element", "periodic", "acid", "base", "salt", "oxidation", "reduction", "reaction"],
+      "factTypes": ["definition", "classification", "formula"],
+      "quizTypes": ["mcq", "fill_blank", "match"]
+    },
+    "biology": {
+      "label": "Biology",
+      "keywords": ["biology", "cell", "genetics", "ecology", "evolution", "organism", "tissue", "enzyme", "photosynthesis", "respiration", "human body"],
+      "factTypes": ["definition", "classification", "process"],
+      "quizTypes": ["mcq", "fill_blank", "match"]
+    },
+    "english": {
+      "label": "English",
+      "keywords": ["english", "grammar", "noun", "pronoun", "verb", "adjective", "adverb", "tense", "idiom", "phrase", "synonym", "antonym", "one word substitution"],
+      "factTypes": ["grammar_rule", "vocabulary", "definition", "pair"],
+      "quizTypes": ["mcq", "fill_blank", "match"]
+    },
+    "gk": {
+      "label": "General Knowledge",
+      "keywords": ["gk", "general knowledge", "capital", "currency", "country", "organization", "award", "book", "author", "national park", "river", "mountain"],
+      "factTypes": ["fact", "pair", "classification"],
+      "quizTypes": ["mcq", "fill_blank", "match"]
+    },
+    "current_affairs": {
+      "label": "Current Affairs",
+      "keywords": ["current affairs", "summit", "budget", "policy", "cabinet", "election", "international", "economy", "science news", "sports news"],
+      "factTypes": ["fact", "event"],
+      "quizTypes": ["mcq", "fill_blank"]
+    },
+    "reasoning": {
+      "label": "Reasoning",
+      "keywords": ["reasoning", "analogy", "series", "coding", "decoding", "syllogism", "blood relation", "direction", "puzzle", "ranking"],
+      "factTypes": ["pattern", "rule"],
+      "quizTypes": ["mcq", "match"]
+    },
+    "quantitative_aptitude": {
+      "label": "Quantitative Aptitude",
+      "keywords": ["quantitative aptitude", "percentage", "profit", "loss", "ratio", "proportion", "average", "time speed distance", "simple interest", "compound interest"],
+      "factTypes": ["formula", "numeric_value", "rule"],
+      "quizTypes": ["mcq", "fill_blank"]
+    }
+  }
+}
