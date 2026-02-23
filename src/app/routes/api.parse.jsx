@@ -392,14 +392,19 @@ function evaluateEntryAgainstPrompt(entry, aiPrompt) {
   const blob = `${entry.term} ${entry.meaning}`.toLowerCase();
 
   if (/one[-\s]?word\s+substitution/.test(prompt)) {
-    const words = entry.term.split(/\s+/).filter(Boolean);
+    const term = String(entry.term || "").trim();
+    const words = term.split(/\s+/).filter(Boolean);
     const meaningWords = entry.meaning.split(/\s+/).filter(Boolean).length;
-    const matched = words.length >= 1 && words.length <= 12 && meaningWords >= 1 && meaningWords <= 24;
+    const headingLike =
+      /one[-\s]?word\s+substitut/i.test(term) ||
+      /^(chapter|unit|lesson|exercise|worksheet|vocabulary|english)\b/i.test(term);
+    const oneWordLike = words.length === 1 || (words.length === 2 && /[-\/]/.test(term));
+    const matched = !headingLike && oneWordLike && meaningWords >= 2 && meaningWords <= 40;
     return {
       matched,
       reason: matched
         ? "Matched one-word substitution term length rule."
-        : "Dropped: term length does not match one-word substitution style.",
+        : "Dropped: one-word substitution expects a single-word term; heading/noise removed.",
     };
   }
 
@@ -958,6 +963,7 @@ async function filterEntriesByPrompt(entries, settings = {}) {
   const rawPrompt = String(settings?.aiPrompt || "").trim();
   const prompt = normalizePromptForMatching(rawPrompt);
   const strict = shouldUseStrictPrompt(settings);
+  const oneWordPrompt = /one[-\s]?word\s+substitution/.test(prompt);
   const reportEnabled = Boolean(settings?.strictReasonReport);
 
   if (!prompt || !cleanEntries.length) {
@@ -1013,16 +1019,23 @@ Return [] if no entry matches.`;
       } else {
         finalEntries = normalized;
         // Non-strict mode should not discard valid local matches when AI over-filters.
-        finalEntries = dedupeEntries([...(heuristic.entries || []), ...finalEntries]);
-        reportItems = cleanEntries.map((entry) => {
-          const kept = normalized.some((item) => entryKey(item) === entryKey(entry));
-          return {
-            term: entry.term,
-            meaning: entry.meaning,
-            kept,
-            reason: kept ? "Kept by AI prompt filter." : "Dropped by AI prompt filter.",
-          };
-        });
+        const merged = dedupeEntries([...(heuristic.entries || []), ...finalEntries]);
+        if (oneWordPrompt) {
+          const oneWordResult = applyPromptFilterWithReport(merged, prompt);
+          finalEntries = oneWordResult.entries;
+          reportItems = oneWordResult.reportItems;
+        } else {
+          finalEntries = merged;
+          reportItems = cleanEntries.map((entry) => {
+            const kept = normalized.some((item) => entryKey(item) === entryKey(entry));
+            return {
+              term: entry.term,
+              meaning: entry.meaning,
+              kept,
+              reason: kept ? "Kept by AI prompt filter." : "Dropped by AI prompt filter.",
+            };
+          });
+        }
       }
     }
   }
