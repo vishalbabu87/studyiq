@@ -22,4 +22,4 @@ ENV TESSERACT_LANG=eng
 
 EXPOSE 10000
 
-CMD ["sh", "-c", "node ./node_modules/@react-router/serve/dist/cli.js ./build/server/index.js"]
+CMD ["node", "./build/server/index.js"]
