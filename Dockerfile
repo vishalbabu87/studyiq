@@ -1,4 +1,4 @@
-FROM node:20-bookworm-slim
+FROM node:22-bookworm-slim
 
 # Install Tesseract OCR so backend can run OCR fallback server-side.
 RUN apt-get update \
