@@ -9,6 +9,7 @@ export default [
   route("tracker", "./tracker/page.jsx"),
   route("upload", "./upload/page.jsx"),
   route("settings", "./settings/page.jsx"),
-  // API routes are handled by src/app/api/*/route.js files
-  // Removed from here to avoid SSR issues
+  route("api/extract", "./routes/api.extract.jsx"),
+  route("api/parse", "./routes/api.parse.jsx"),
+  route("api/ai/quiz", "./routes/api.quiz.generate.jsx"),
 ];
