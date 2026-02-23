@@ -11,10 +11,7 @@ function normalizeBase(base) {
 }
 
 export function apiUrl(path) {
-  let cleanPath = path.startsWith("/") ? path : `/${path}`;
-  if (cleanPath === "/api/extract") {
-    cleanPath = "/api/extract/";
-  }
+  const cleanPath = path.startsWith("/") ? path : `/${path}`;
   const envBase = normalizeBase(import.meta.env?.VITE_API_BASE_URL || "");
 
   let savedBase = "";
@@ -30,18 +27,5 @@ export function apiUrl(path) {
   if (configuredBase) return `${configuredBase}${cleanPath}`;
 
   const defaultBase = normalizeBase(DEFAULT_API_BASE);
-  if (defaultBase) return `${defaultBase}${cleanPath}`;
-
-  if (typeof window !== "undefined") {
-    const { protocol, hostname, port, origin } = window.location;
-
-    // Static APK preview ports do not host API routes; route API to live app server.
-    if (port && ["5000", "5002", "5003"].includes(port)) {
-      return `${protocol}//${hostname}:4001${cleanPath}`;
-    }
-
-    return `${origin}${cleanPath}`;
-  }
-
-  return `http://localhost:4001${cleanPath}`;
+  return `${defaultBase}${cleanPath}`;
 }
