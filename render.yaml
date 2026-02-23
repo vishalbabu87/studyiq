@@ -1,0 +1,16 @@
+services:
+  - type: web
+    name: studyiq-backend
+    env: docker
+    rootDir: .
+    dockerfilePath: ./Dockerfile
+    plan: free
+    autoDeploy: true
+    healthCheckPath: /
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: TESSERACT_PATH
+        value: /usr/bin/tesseract
+      - key: TESSERACT_LANG
+        value: eng
